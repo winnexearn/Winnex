@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { User, TIER_CONFIGS } from '@/lib/types'
 import { formatNaira } from '@/lib/utils'
 
@@ -12,18 +11,10 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false)
 
   const fetchData = useCallback(async () => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session) return
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
-
-    setUser(userData)
+    const res = await fetch('/api/auth/me')
+    if (res.ok) {
+      setUser(await res.json())
+    }
     setLoading(false)
   }, [])
 
@@ -33,7 +24,7 @@ export default function SettingsPage() {
 
   const handleUpgradeTier = async (newTier: number) => {
     if (!user) return
-    
+
     const tierConfig = TIER_CONFIGS[newTier]
     if (user.balance < tierConfig.upgradePrice) {
       alert('Insufficient balance. Please fund your account first.')
@@ -47,38 +38,22 @@ export default function SettingsPage() {
     setSaving(true)
 
     try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) return
+      const res = await fetch('/api/tiers/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to_tier: newTier }),
+      })
 
-      // Create upgrade record
-      const { error: upgradeError } = await supabase
-        .from('tier_upgrades')
-        .insert({
-          user_id: session.user.id,
-          from_tier: user.tier,
-          to_tier: newTier,
-          amount_paid: tierConfig.upgradePrice,
-          payment_status: 'completed',
-        })
+      const data = await res.json()
 
-      if (upgradeError) throw upgradeError
-
-      // Update user tier and balance
-      const { error: userError } = await supabase
-        .from('users')
-        .update({
-          tier: newTier,
-          balance: user.balance - tierConfig.upgradePrice,
-        })
-        .eq('id', session.user.id)
-
-      if (userError) throw userError
+      if (!res.ok) {
+        alert(data.error || 'Error upgrading tier. Please try again.')
+        return
+      }
 
       setSuccess(true)
       await fetchData()
-      
+
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
       console.error('Upgrade error:', err)
@@ -106,7 +81,7 @@ export default function SettingsPage() {
 
       {success && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-          Settings saved successfully!
+          Tier upgraded successfully!
         </div>
       )}
 
@@ -146,7 +121,7 @@ export default function SettingsPage() {
       {/* Upgrade Options */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Upgrade Your Tier</h2>
-        
+
         <div className="space-y-4">
           {/* Tier 2 */}
           {user?.tier && user.tier < 2 && (

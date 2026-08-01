@@ -1,12 +1,29 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/lib/supabase/middleware'
+import { type NextRequest, NextResponse } from 'next/server'
+import { SESSION_COOKIE, verifySessionToken } from '@/lib/auth'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  const { pathname } = request.nextUrl
+
+  const isProtected =
+    pathname === '/dashboard' || pathname.startsWith('/dashboard/')
+
+  if (!isProtected) {
+    return NextResponse.next()
+  }
+
+  const cookie = request.cookies.get(SESSION_COOKIE)
+  const userId = cookie ? await verifySessionToken(cookie.value) : null
+
+  if (!userId) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('redirect', pathname)
+    return NextResponse.redirect(url)
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  matcher: ['/dashboard/:path*'],
 }

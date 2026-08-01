@@ -1,28 +1,26 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getCurrentUserId } from '@/lib/auth'
+import { createAdminClient } from '@/lib/supabase/admin'
 
-export async function GET() {
-  try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+export async function GET(request: Request) {
+  const userId = await getCurrentUserId(request)
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const admin = createAdminClient()
+  const today = new Date().toISOString().split('T')[0]
 
-    const today = new Date().toISOString().split('T')[0]
+  const { data: tasks, error } = await admin
+    .from('tasks')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('created_at', today)
+    .order('created_at', { ascending: false })
 
-    const { data: tasks, error: tasksError } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('created_at', today)
-      .order('created_at', { ascending: false })
-
-    if (tasksError) throw tasksError
-
-    return NextResponse.json(tasks)
-  } catch (error) {
+  if (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
+
+  return NextResponse.json(tasks)
 }

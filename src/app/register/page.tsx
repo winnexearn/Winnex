@@ -1,12 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function Register() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <RegisterForm />
+    </Suspense>
+  )
+}
+
+function RegisterForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -15,7 +23,7 @@ export default function Register() {
     bankName: 'Nigerian Bank',
     password: '',
     confirmPassword: '',
-    referralCode: '',
+    referralCode: searchParams.get('ref')?.toUpperCase() || '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -44,70 +52,35 @@ export default function Register() {
     }
 
     try {
-      const supabase = createClient()
-      
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            phone_number: formData.phoneNumber,
-            account_number: formData.accountNumber,
-            bank_name: formData.bankName,
-          }
-        }
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: formData.fullName,
+          email: formData.email,
+          phone_number: formData.phoneNumber,
+          account_number: formData.accountNumber,
+          bank_name: formData.bankName,
+          password: formData.password,
+          referral_code: formData.referralCode,
+        }),
       })
 
-      if (authError) throw authError
-
-      if (authData.user) {
-        const referralCode = Math.random().toString(36).substring(2, 10).toUpperCase()
-        
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: formData.email,
-            full_name: formData.fullName,
-            phone_number: formData.phoneNumber,
-            account_number: formData.accountNumber,
-            bank_name: formData.bankName,
-            tier: 1,
-            balance: 0,
-            commission_balance: 0,
-            total_earned: 0,
-            referral_code: referralCode,
-            referred_by: formData.referralCode || null,
-            tasks_completed_today: 0,
-          })
-
-        if (profileError) throw profileError
-
-        if (formData.referralCode) {
-          const { data: referrer } = await supabase
-            .from('users')
-            .select('id')
-            .eq('referral_code', formData.referralCode)
-            .single()
-
-          if (referrer) {
-            await supabase.from('referrals').insert({
-              referrer_id: referrer.id,
-              referred_id: authData.user.id,
-              reward_amount: 500,
-            })
-          }
-        }
-
-        router.push('/dashboard')
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'An error occurred')
       }
+
+      router.push('/dashboard')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
   }
+
+  const inputClass =
+    'w-full px-4 py-3 bg-white text-gray-900 placeholder-gray-400 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-green-100 flex items-center justify-center p-4">
@@ -136,7 +109,7 @@ export default function Register() {
               <input
                 type="text"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="Enter your full name"
                 value={formData.fullName}
                 onChange={(e) => setFormData({...formData, fullName: e.target.value})}
@@ -148,7 +121,7 @@ export default function Register() {
               <input
                 type="email"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -160,7 +133,7 @@ export default function Register() {
               <input
                 type="tel"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="08012345678"
                 value={formData.phoneNumber}
                 onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
@@ -172,7 +145,7 @@ export default function Register() {
               <input
                 type="text"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="Enter your 10-digit account number"
                 value={formData.accountNumber}
                 onChange={(e) => setFormData({...formData, accountNumber: e.target.value})}
@@ -182,7 +155,7 @@ export default function Register() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
               <select
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 value={formData.bankName}
                 onChange={(e) => setFormData({...formData, bankName: e.target.value})}
               >
@@ -218,7 +191,7 @@ export default function Register() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Referral Code (Optional)</label>
               <input
                 type="text"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="Enter referral code"
                 value={formData.referralCode}
                 onChange={(e) => setFormData({...formData, referralCode: e.target.value.toUpperCase()})}
@@ -230,7 +203,7 @@ export default function Register() {
               <input
                 type="password"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="Create a password"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -242,7 +215,7 @@ export default function Register() {
               <input
                 type="password"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                className={inputClass}
                 placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}

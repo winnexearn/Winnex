@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { User, Task, TIER_CONFIGS } from '@/lib/types'
 import { formatNaira } from '@/lib/utils'
 
@@ -15,57 +14,33 @@ interface ContentItem {
 export default function TasksPage() {
   const [user, setUser] = useState<User | null>(null)
   const [todayTasks, setTodayTasks] = useState<Task[]>([])
-  const [availableContent, setAvailableContent] = useState<ContentItem[]>([])
+  const [videos, setVideos] = useState<ContentItem[]>([])
+  const [ads, setAds] = useState<ContentItem[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'videos' | 'ads'>('videos')
   const [completing, setCompleting] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session) return
+    const [meRes, tasksRes, contentRes] = await Promise.all([
+      fetch('/api/auth/me'),
+      fetch('/api/tasks'),
+      fetch('/api/content'),
+    ])
 
-    const { data: userData } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    if (meRes.ok) {
+      setUser(await meRes.json())
+    }
 
-    setUser(userData)
+    if (tasksRes.ok) {
+      setTodayTasks(await tasksRes.json())
+    }
 
-    const today = new Date().toISOString().split('T')[0]
-    const { data: tasks } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .gte('created_at', today)
-      .order('created_at', { ascending: false })
+    if (contentRes.ok) {
+      const content = await contentRes.json()
+      setVideos(content.videos || [])
+      setAds(content.ads || [])
+    }
 
-    setTodayTasks(tasks || [])
-
-    // Fetch random content
-    const { data: videos } = await supabase
-      .from('content_pool')
-      .select('*')
-      .eq('content_type', 'tiktok_video')
-      .eq('is_active', true)
-      .order('id')
-      .limit(20)
-
-    const { data: ads } = await supabase
-      .from('content_pool')
-      .select('*')
-      .eq('content_type', 'ad')
-      .eq('is_active', true)
-      .order('id')
-      .limit(20)
-
-    // Shuffle and combine
-    const shuffledVideos = (videos || []).sort(() => Math.random() - 0.5)
-    const shuffledAds = (ads || []).sort(() => Math.random() - 0.5)
-    setAvailableContent([...shuffledVideos, ...shuffledAds])
-    
     setLoading(false)
   }, [])
 
@@ -75,7 +50,7 @@ export default function TasksPage() {
 
   const handleCompleteTask = async (content: ContentItem) => {
     if (!user) return
-    
+
     const tierConfig = TIER_CONFIGS[user.tier]
     const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
     const adsCompleted = todayTasks.filter(t => t.task_type === 'ad_view' && t.status === 'completed').length
@@ -99,43 +74,23 @@ export default function TasksPage() {
     setCompleting(content.id)
 
     try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) return
-
-      const rewardAmount = content.content_type === 'tiktok_video' 
-        ? tierConfig.videoReward 
-        : tierConfig.adReward
-
-      // Create task record
-      const { error: taskError } = await supabase
-        .from('tasks')
-        .insert({
-          user_id: session.user.id,
+      const res = await fetch('/api/tasks/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           task_type: content.content_type === 'tiktok_video' ? 'tiktok_video' : 'ad_view',
           content_url: content.url,
           content_title: content.title,
-          reward_amount: rewardAmount,
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-        })
+        }),
+      })
 
-      if (taskError) throw taskError
+      const data = await res.json()
 
-      // Update user balance
-      const { error: balanceError } = await supabase
-        .from('users')
-        .update({
-          balance: user.balance + rewardAmount,
-          total_earned: user.total_earned + rewardAmount,
-          tasks_completed_today: totalCompleted + 1,
-        })
-        .eq('id', session.user.id)
+      if (!res.ok) {
+        alert(data.error || 'Error completing task. Please try again.')
+        return
+      }
 
-      if (balanceError) throw balanceError
-
-      // Refresh data
       await fetchData()
     } catch (err) {
       console.error('Error completing task:', err)
@@ -156,8 +111,7 @@ export default function TasksPage() {
   const tierConfig = user ? TIER_CONFIGS[user.tier] : TIER_CONFIGS[1]
   const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
   const adsCompleted = todayTasks.filter(t => t.task_type === 'ad_view' && t.status === 'completed').length
-  const videos = availableContent.filter(c => c.content_type === 'tiktok_video')
-  const ads = availableContent.filter(c => c.content_type === 'ad')
+  const todayEarnings = todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0)
 
   return (
     <div className="space-y-6">
@@ -185,9 +139,7 @@ export default function TasksPage() {
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="text-sm text-gray-500 mb-1">Today&apos;s Earnings</div>
-          <div className="text-2xl font-bold text-emerald-600">
-            {formatNaira(todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0))}
-          </div>
+          <div className="text-2xl font-bold text-emerald-600">{formatNaira(todayEarnings)}</div>
         </div>
       </div>
 
@@ -195,8 +147,8 @@ export default function TasksPage() {
       <div className="flex gap-2 bg-gray-100 p-1 rounded-xl">
         <button
           className={`flex-1 py-3 rounded-lg font-medium transition ${
-            activeTab === 'videos' 
-              ? 'bg-white text-emerald-600 shadow-sm' 
+            activeTab === 'videos'
+              ? 'bg-white text-emerald-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
           onClick={() => setActiveTab('videos')}
@@ -205,8 +157,8 @@ export default function TasksPage() {
         </button>
         <button
           className={`flex-1 py-3 rounded-lg font-medium transition ${
-            activeTab === 'ads' 
-              ? 'bg-white text-blue-600 shadow-sm' 
+            activeTab === 'ads'
+              ? 'bg-white text-blue-600 shadow-sm'
               : 'text-gray-600 hover:text-gray-900'
           }`}
           onClick={() => setActiveTab('ads')}
@@ -294,7 +246,7 @@ export default function TasksPage() {
                     </div>
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900">{content.title || 'Sponsored Ad'}</h3>
-                      <p className="text-sm text-gray-500">View this ad for {Math.floor(Math.random() * 10) + 15} seconds</p>
+                      <p className="text-sm text-gray-500">View this ad for 15-25 seconds</p>
                       <div className="text-blue-600 font-medium mt-1">+{formatNaira(tierConfig.adReward)}</div>
                     </div>
                     <div>

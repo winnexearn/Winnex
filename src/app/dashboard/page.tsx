@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useState, useEffect, useCallback } from 'react'
 import { User, Task, TIER_CONFIGS } from '@/lib/types'
 import { formatNaira, formatDate } from '@/lib/utils'
 
@@ -10,35 +9,28 @@ export default function Dashboard() {
   const [todayTasks, setTodayTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) return
+  const fetchData = useCallback(async () => {
+    const [meRes, tasksRes] = await Promise.all([
+      fetch('/api/auth/me'),
+      fetch('/api/tasks'),
+    ])
 
-      const { data: userData } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      setUser(userData)
-
-      const today = new Date().toISOString().split('T')[0]
-      const { data: tasks } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .gte('created_at', today)
-        .order('created_at', { ascending: false })
-
-      setTodayTasks(tasks || [])
-      setLoading(false)
+    if (meRes.ok) {
+      const me = await meRes.json()
+      setUser(me)
     }
 
-    fetchData()
+    if (tasksRes.ok) {
+      const tasks = await tasksRes.json()
+      setTodayTasks(tasks)
+    }
+
+    setLoading(false)
   }, [])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   if (loading) {
     return (
@@ -55,13 +47,11 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Welcome back, {user?.full_name?.split(' ')[0]}!</h1>
         <p className="text-emerald-100">You&apos;re on Tier {user?.tier}. Keep earning to level up!</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="flex items-center gap-3">
@@ -120,11 +110,10 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Task Progress */}
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Today&apos;s Progress</h2>
-          
+
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-2">
@@ -132,7 +121,7 @@ export default function Dashboard() {
                 <span className="font-medium">{videosCompleted}/{tierConfig.maxVideos}</span>
               </div>
               <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-pink-500 to-rose-500 rounded-full transition-all"
                   style={{ width: `${(videosCompleted / tierConfig.maxVideos) * 100}%` }}
                 />
@@ -145,7 +134,7 @@ export default function Dashboard() {
                 <span className="font-medium">{adsCompleted}/{tierConfig.maxAds}</span>
               </div>
               <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all"
                   style={{ width: `${(adsCompleted / tierConfig.maxAds) * 100}%` }}
                 />
@@ -158,7 +147,7 @@ export default function Dashboard() {
                 <span className="font-medium">{videosCompleted + adsCompleted}/{tierConfig.maxTasks}</span>
               </div>
               <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all"
                   style={{ width: `${((videosCompleted + adsCompleted) / tierConfig.maxTasks) * 100}%` }}
                 />
@@ -166,18 +155,17 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <a 
-            href="/dashboard/tasks" 
+          <a
+            href="/dashboard/tasks"
             className="mt-6 block w-full py-3 text-center bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition"
           >
             Start Earning
           </a>
         </div>
 
-        {/* Current Tier */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Tier</h2>
-          
+
           <div className={`p-6 rounded-xl text-white mb-4 ${
             user?.tier === 1 ? 'bg-gradient-to-br from-emerald-500 to-green-600' :
             user?.tier === 2 ? 'bg-gradient-to-br from-amber-500 to-orange-600' :
@@ -200,8 +188,8 @@ export default function Dashboard() {
           </div>
 
           {user?.tier && user.tier < 3 && (
-            <a 
-              href="/dashboard/settings" 
+            <a
+              href="/dashboard/settings"
               className="block w-full py-3 text-center border-2 border-emerald-600 text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition"
             >
               Upgrade to Tier {user.tier + 1} - {formatNaira(TIER_CONFIGS[user.tier + 1].upgradePrice)}
@@ -210,10 +198,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Activity */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
-        
+
         {todayTasks.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <svg className="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,8 +238,8 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  task.status === 'completed' 
-                    ? 'bg-green-100 text-green-700' 
+                  task.status === 'completed'
+                    ? 'bg-green-100 text-green-700'
                     : 'bg-yellow-100 text-yellow-700'
                 }`}>
                   {task.status === 'completed' ? `+${formatNaira(task.reward_amount)}` : 'Pending'}

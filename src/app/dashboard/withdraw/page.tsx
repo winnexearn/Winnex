@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { User, Withdrawal } from '@/lib/types'
 import { formatNaira, formatDate } from '@/lib/utils'
 
@@ -14,26 +13,19 @@ export default function WithdrawPage() {
   const [success, setSuccess] = useState(false)
 
   const fetchData = useCallback(async () => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session) return
+    const [meRes, withdrawalsRes] = await Promise.all([
+      fetch('/api/auth/me'),
+      fetch('/api/withdrawals'),
+    ])
 
-    const { data: userData } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    if (meRes.ok) {
+      setUser(await meRes.json())
+    }
 
-    setUser(userData)
+    if (withdrawalsRes.ok) {
+      setWithdrawals(await withdrawalsRes.json())
+    }
 
-    const { data: withdrawalData } = await supabase
-      .from('withdrawals')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .order('created_at', { ascending: false })
-
-    setWithdrawals(withdrawalData || [])
     setLoading(false)
   }, [])
 
@@ -58,37 +50,23 @@ export default function WithdrawPage() {
     setSubmitting(true)
 
     try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) return
+      const res = await fetch('/api/withdrawals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: withdrawAmount }),
+      })
 
-      const { error } = await supabase
-        .from('withdrawals')
-        .insert({
-          user_id: session.user.id,
-          amount: withdrawAmount,
-          account_number: user.account_number,
-          bank_name: user.bank_name,
-          status: 'pending',
-        })
+      const data = await res.json()
 
-      if (error) throw error
-
-      // Update user balance
-      const { error: balanceError } = await supabase
-        .from('users')
-        .update({
-          balance: user.balance - withdrawAmount,
-        })
-        .eq('id', session.user.id)
-
-      if (balanceError) throw balanceError
+      if (!res.ok) {
+        alert(data.error || 'Error processing withdrawal. Please try again.')
+        return
+      }
 
       setSuccess(true)
       setAmount('')
       await fetchData()
-      
+
       setTimeout(() => setSuccess(false), 3000)
     } catch (err) {
       console.error('Withdrawal error:', err)
@@ -126,7 +104,7 @@ export default function WithdrawPage() {
       {/* Withdrawal Form */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">New Withdrawal</h2>
-        
+
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
             Withdrawal request submitted successfully!
@@ -142,7 +120,7 @@ export default function WithdrawPage() {
               max={user?.balance || 0}
               step="100"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+              className="w-full px-4 py-3 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
               placeholder="Enter amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -168,7 +146,7 @@ export default function WithdrawPage() {
       {/* Withdrawal History */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Withdrawal History</h2>
-        
+
         {withdrawals.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

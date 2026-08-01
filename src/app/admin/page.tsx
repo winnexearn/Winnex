@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { formatNaira, formatDate } from '@/lib/utils'
+import { formatNaira } from '@/lib/utils'
 
 interface AdminStats {
   totalUsers: number
@@ -18,36 +17,17 @@ export default function AdminPage() {
   const [authenticated, setAuthenticated] = useState(false)
 
   const fetchStats = useCallback(async () => {
-    const supabase = createClient()
+    try {
+      const res = await fetch('/api/admin/stats', {
+        headers: { 'x-admin-password': 'winnex_admin_2024' },
+      })
 
-    const { count: totalUsers } = await supabase
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-
-    const { data: balanceData } = await supabase
-      .from('users')
-      .select('balance')
-
-    const totalBalance = balanceData?.reduce((sum, u) => sum + u.balance, 0) || 0
-
-    const { count: pendingWithdrawals } = await supabase
-      .from('withdrawals')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending')
-
-    const { data: withdrawalData } = await supabase
-      .from('withdrawals')
-      .select('amount')
-      .eq('status', 'completed')
-
-    const totalWithdrawals = withdrawalData?.reduce((sum, w) => sum + w.amount, 0) || 0
-
-    setStats({
-      totalUsers: totalUsers || 0,
-      totalBalance,
-      totalWithdrawals,
-      pendingWithdrawals: pendingWithdrawals || 0,
-    })
+      if (res.ok) {
+        setStats(await res.json())
+      }
+    } catch (err) {
+      console.error('Admin stats error:', err)
+    }
     setLoading(false)
   }, [])
 

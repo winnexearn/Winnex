@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { User, Referral } from '@/lib/types'
 import { formatNaira, formatDate } from '@/lib/utils'
 
@@ -12,26 +11,19 @@ export default function ReferralsPage() {
   const [copied, setCopied] = useState(false)
 
   const fetchData = useCallback(async () => {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    
-    if (!session) return
+    const [meRes, referralsRes] = await Promise.all([
+      fetch('/api/auth/me'),
+      fetch('/api/referrals'),
+    ])
 
-    const { data: userData } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    if (meRes.ok) {
+      setUser(await meRes.json())
+    }
 
-    setUser(userData)
+    if (referralsRes.ok) {
+      setReferrals(await referralsRes.json())
+    }
 
-    const { data: referralData } = await supabase
-      .from('referrals')
-      .select('*')
-      .eq('referrer_id', session.user.id)
-      .order('created_at', { ascending: false })
-
-    setReferrals(referralData || [])
     setLoading(false)
   }, [])
 
@@ -92,8 +84,8 @@ export default function ReferralsPage() {
           <button
             onClick={copyReferralLink}
             className={`px-6 py-3 rounded-xl font-medium transition ${
-              copied 
-                ? 'bg-green-100 text-green-700' 
+              copied
+                ? 'bg-green-100 text-green-700'
                 : 'bg-emerald-600 text-white hover:bg-emerald-700'
             }`}
           >
@@ -136,7 +128,7 @@ export default function ReferralsPage() {
       {/* Referral List */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Referrals</h2>
-        
+
         {referrals.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,8 +153,8 @@ export default function ReferralsPage() {
                   </div>
                 </div>
                 <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  referral.status === 'completed' 
-                    ? 'bg-green-100 text-green-700' 
+                  referral.status === 'completed'
+                    ? 'bg-green-100 text-green-700'
                     : 'bg-yellow-100 text-yellow-700'
                 }`}>
                   {referral.status === 'completed' ? `+${formatNaira(referral.reward_amount)}` : 'Pending'}

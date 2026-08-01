@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import { User } from '@/lib/types'
 
 export default function DashboardLayout({
@@ -19,30 +18,26 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const fetchUser = async () => {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-      
-      if (!session) {
+      try {
+        const res = await fetch('/api/auth/me')
+        if (!res.ok) {
+          router.push('/login')
+          return
+        }
+        const data = await res.json()
+        setUser(data)
+      } catch {
         router.push('/login')
-        return
+      } finally {
+        setLoading(false)
       }
-
-      const { data: userData } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-
-      setUser(userData)
-      setLoading(false)
     }
 
     fetchUser()
   }, [router])
 
   const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+    await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/')
   }
 
@@ -67,15 +62,13 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-4 border-b border-gray-200">
           <Link href="/dashboard" className="flex items-center gap-2">
@@ -92,8 +85,8 @@ export default function DashboardLayout({
               key={item.name}
               href={item.href}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${
-                pathname === item.href 
-                  ? 'bg-emerald-50 text-emerald-700 font-medium' 
+                pathname === item.href
+                  ? 'bg-emerald-50 text-emerald-700 font-medium'
                   : 'text-gray-600 hover:bg-gray-50'
               }`}
               onClick={() => setSidebarOpen(false)}
@@ -119,9 +112,7 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      {/* Main Content */}
       <div className="lg:ml-64">
-        {/* Top Header */}
         <header className="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-30">
           <div className="flex items-center justify-between">
             <button
@@ -147,7 +138,6 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="p-4 md:p-6">
           {children}
         </main>

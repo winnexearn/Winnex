@@ -1,83 +1,70 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getSessionUser } from '@/lib/auth'
+import { createAdminClient } from '@/lib/supabase/admin'
 
-export async function POST(request: Request) {
-  try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+export async function GET(request: Request) {
+  const user = await getSessionUser(request)
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+  const admin = createAdminClient()
 
-    const body = await request.json()
-    const { amount } = body
+  const { data: withdrawals, error } = await admin
+    .from('withdrawals')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
-    if (amount < 1000) {
-      return NextResponse.json({ error: 'Minimum withdrawal is ₦1,000' }, { status: 400 })
-    }
-
-    // Get user data
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single()
-
-    if (userError) throw userError
-
-    if (amount > userData.balance) {
-      return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 })
-    }
-
-    // Create withdrawal
-    const { error: withdrawalError } = await supabase
-      .from('withdrawals')
-      .insert({
-        user_id: user.id,
-        amount,
-        account_number: userData.account_number,
-        bank_name: userData.bank_name,
-        status: 'pending',
-      })
-
-    if (withdrawalError) throw withdrawalError
-
-    // Update balance
-    const { error: balanceError } = await supabase
-      .from('users')
-      .update({
-        balance: userData.balance - amount,
-      })
-      .eq('id', user.id)
-
-    if (balanceError) throw balanceError
-
-    return NextResponse.json({ success: true, new_balance: userData.balance - amount })
-  } catch (error) {
+  if (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
+
+  return NextResponse.json(withdrawals)
 }
 
-export async function GET() {
-  try {
-    const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: withdrawals, error: withdrawalsError } = await supabase
-      .from('withdrawals')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (withdrawalsError) throw withdrawalsError
-
-    return NextResponse.json(withdrawals)
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+export async function POST(request: Request) {
+  const user = await getSessionUser(request)
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const body = await request.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+
+  const amount = Number(body.amount)
+  if (!amount || amount < 1000) {
+    return NextResponse.json({ error: 'Minimum withdrawal is ₦1,000' }, { status: 400 })
+  }
+
+  if (amount > user.balance) {
+    return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 })
+  }
+
+  const admin = createAdminClient()
+
+  const { error: withdrawalError } = await admin.from('withdrawals').insert({
+    user_id: user.id,
+    amount,
+    account_number: user.account_number,
+    bank_name: user.bank_name,
+    status: 'pending',
+  })
+
+  if (withdrawalError) {
+    return NextResponse.json({ error: withdrawalError.message }, { status: 500 })
+  }
+
+  const { error: balanceError } = await admin
+    .from('users')
+    .update({ balance: user.balance - amount })
+    .eq('id', user.id)
+
+  if (balanceError) {
+    return NextResponse.json({ error: balanceError.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true, new_balance: user.balance - amount })
 }
