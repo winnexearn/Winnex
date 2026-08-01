@@ -148,7 +148,7 @@ export default function Home() {
                 <span className="text-white text-2xl font-bold">3</span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Withdraw Earnings</h3>
-              <p className="text-gray-600">Cash out directly to your Nigerian bank account anytime.</p>
+              <p className="text-gray-600">Cash out to your Nigerian bank account every 1st of the month.</p>
             </div>
           </div>
         </div>

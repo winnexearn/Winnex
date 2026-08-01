@@ -31,3 +31,29 @@ export function formatDate(dateString: string): string {
     minute: '2-digit',
   })
 }
+
+export function isWithdrawalDay(date: Date = new Date()): boolean {
+  const day = Number(
+    date
+      .toLocaleString('en-US', { timeZone: 'Africa/Lagos' })
+      .split(',')[0]
+      .split('/')[1]
+  )
+  return day === 1
+}
+
+export function daysUntilNextWithdrawalDay(now: Date = new Date()): number {
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  const diff = next.getTime() - now.getTime()
+  return Math.ceil(diff / (1000 * 60 * 60 * 24))
+}
+
+export function nextWithdrawalDayLabel(now: Date = new Date()): string {
+  const next = new Date(now.getFullYear(), now.getMonth() + 1, 1)
+  return next.toLocaleDateString('en-NG', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}

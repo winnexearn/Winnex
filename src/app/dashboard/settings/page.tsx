@@ -71,6 +71,11 @@ export default function SettingsPage() {
     )
   }
 
+  const dailyEarnings = (tier: 1 | 2 | 3) =>
+    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward + TIER_CONFIGS[tier].maxAds * TIER_CONFIGS[tier].adReward
+
+  const monthlyEarnings = (tier: 1 | 2 | 3) => dailyEarnings(tier) * 30
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -125,21 +130,32 @@ export default function SettingsPage() {
         <div className="space-y-4">
           {/* Tier 2 */}
           {user?.tier && user.tier < 2 && (
-            <div className="border-2 border-amber-200 rounded-xl p-4 bg-amber-50">
-              <div className="flex items-center justify-between">
+            <div className="relative border-2 border-amber-400 rounded-xl p-4 bg-amber-50">
+              <div className="absolute -top-3 left-4 bg-amber-500 text-white px-3 py-0.5 rounded-full text-xs font-semibold">
+                MOST POPULAR
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
                 <div>
-                  <div className="text-amber-600 font-medium">Tier 2 - Professional</div>
+                  <div className="text-amber-600 font-semibold">Tier 2 - Professional</div>
                   <div className="text-sm text-gray-600 mt-1">
                     ₦200/video • ₦100/ad • 8 tasks/day
+                  </div>
+                  <div className="text-sm mt-2">
+                    <span className="font-bold text-emerald-600">+₦{dailyEarnings(2).toLocaleString()}/day</span>
+                    <span className="text-gray-500"> • </span>
+                    <span className="font-bold text-gray-900">₦{monthlyEarnings(2).toLocaleString()}/month</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Pays for itself in 1 day. Upgrade once, earn forever.
                   </div>
                   <div className="text-lg font-bold text-gray-900 mt-2">{formatNaira(1000)}</div>
                 </div>
                 <button
                   onClick={() => handleUpgradeTier(2)}
                   disabled={saving}
-                  className="px-6 py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-3 bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition disabled:opacity-50"
                 >
-                  {saving ? 'Processing...' : 'Upgrade'}
+                  {saving ? 'Processing...' : 'Upgrade to Tier 2'}
                 </button>
               </div>
             </div>
@@ -147,21 +163,32 @@ export default function SettingsPage() {
 
           {/* Tier 3 */}
           {user?.tier && user.tier < 3 && (
-            <div className="border-2 border-purple-200 rounded-xl p-4 bg-purple-50">
-              <div className="flex items-center justify-between">
+            <div className="relative border-2 border-purple-200 rounded-xl p-4 bg-purple-50">
+              <div className="absolute -top-3 left-4 bg-purple-600 text-white px-3 py-0.5 rounded-full text-xs font-semibold">
+                MAX EARNINGS
+              </div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-2">
                 <div>
-                  <div className="text-purple-600 font-medium">Tier 3 - Legend</div>
+                  <div className="text-purple-600 font-semibold">Tier 3 - Legend</div>
                   <div className="text-sm text-gray-600 mt-1">
                     ₦300/video • ₦150/ad • 10 tasks/day
+                  </div>
+                  <div className="text-sm mt-2">
+                    <span className="font-bold text-emerald-600">+₦{dailyEarnings(3).toLocaleString()}/day</span>
+                    <span className="text-gray-500"> • </span>
+                    <span className="font-bold text-gray-900">₦{monthlyEarnings(3).toLocaleString()}/month</span>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Double your income compared to Tier {user.tier === 1 ? '1' : '2'}.
                   </div>
                   <div className="text-lg font-bold text-gray-900 mt-2">{formatNaira(2000)}</div>
                 </div>
                 <button
                   onClick={() => handleUpgradeTier(3)}
                   disabled={saving}
-                  className="px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition disabled:opacity-50"
                 >
-                  {saving ? 'Processing...' : 'Upgrade'}
+                  {saving ? 'Processing...' : 'Upgrade to Tier 3'}
                 </button>
               </div>
             </div>

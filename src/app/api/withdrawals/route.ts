@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isWithdrawalDay } from '@/lib/utils'
 
 export async function GET(request: Request) {
   const user = await getSessionUser(request)
@@ -37,6 +38,13 @@ export async function POST(request: Request) {
   const amount = Number(body.amount)
   if (!amount || amount < 1000) {
     return NextResponse.json({ error: 'Minimum withdrawal is ₦1,000' }, { status: 400 })
+  }
+
+  if (!isWithdrawalDay()) {
+    return NextResponse.json(
+      { error: 'Withdrawals are only available on the 1st of every month. Please come back on the 1st.' },
+      { status: 400 }
+    )
   }
 
   if (amount > user.balance) {

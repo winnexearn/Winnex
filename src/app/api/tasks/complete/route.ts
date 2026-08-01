@@ -28,6 +28,32 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
+  const poolType = task_type === 'tiktok_video' ? 'tiktok_video' : 'ad'
+
+  const { data: poolItem } = await admin
+    .from('content_pool')
+    .select('id')
+    .eq('url', content_url)
+    .eq('content_type', poolType)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (!poolItem) {
+    return NextResponse.json({ error: 'This task is no longer available' }, { status: 400 })
+  }
+
+  const { data: alreadyDone } = await admin
+    .from('tasks')
+    .select('id')
+    .eq('user_id', user.id)
+    .eq('content_url', content_url)
+    .eq('status', 'completed')
+    .maybeSingle()
+
+  if (alreadyDone) {
+    return NextResponse.json({ error: 'You have already completed this task' }, { status: 400 })
+  }
+
   const today = new Date().toISOString().split('T')[0]
   const todayKey = new Date().toISOString().split('T')[0]
 

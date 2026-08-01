@@ -45,6 +45,13 @@ export default function Dashboard() {
   const adsCompleted = todayTasks.filter(t => t.task_type === 'ad_view' && t.status === 'completed').length
   const todayEarnings = todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0)
 
+  const dailyEarnings = (tier: 1 | 2 | 3) =>
+    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward + TIER_CONFIGS[tier].maxAds * TIER_CONFIGS[tier].adReward
+
+  const monthlyEarnings = (tier: 1 | 2 | 3) => dailyEarnings(tier) * 30
+
+  const nextTier = user?.tier === 1 ? 2 : user?.tier === 2 ? 3 : null
+
   return (
     <div className="space-y-6">
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
@@ -187,16 +194,123 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {user?.tier && user.tier < 3 && (
-            <a
-              href="/dashboard/settings"
-              className="block w-full py-3 text-center border-2 border-emerald-600 text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition"
-            >
-              Upgrade to Tier {user.tier + 1} - {formatNaira(TIER_CONFIGS[user.tier + 1].upgradePrice)}
-            </a>
+          {user?.tier && user.tier < 3 && nextTier && (
+            <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 border border-emerald-100">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div>
+                  <div className="font-semibold text-gray-900">Level up to Tier {nextTier}</div>
+                  <div className="text-sm text-gray-600">
+                    Earn up to {formatNaira(dailyEarnings(nextTier))}/day • {formatNaira(monthlyEarnings(nextTier))}/month
+                  </div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-lg font-bold text-emerald-600">{formatNaira(TIER_CONFIGS[nextTier].upgradePrice)}</div>
+                  <div className="text-xs text-gray-500">one-time</div>
+                </div>
+              </div>
+              <a
+                href="/dashboard/settings"
+                className="block w-full py-3 text-center bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition"
+              >
+                Upgrade Now
+              </a>
+            </div>
           )}
         </div>
       </div>
+
+      {/* Level Up Comparison */}
+      {user?.tier && user.tier < 3 && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Grow Your Earnings</h2>
+            <p className="text-gray-600">Higher tiers = more tasks, bigger rewards, and much higher daily income.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {[1, 2, 3].map((t) => {
+              const cfg = TIER_CONFIGS[t as 1 | 2 | 3]
+              const isCurrent = user.tier === t
+              const isPopular = t === 2
+              return (
+                <div
+                  key={t}
+                  className={`relative rounded-2xl p-6 border-2 transition ${
+                    isCurrent
+                      ? 'border-emerald-500 bg-emerald-50'
+                      : isPopular
+                        ? 'border-amber-400 bg-amber-50'
+                        : 'border-gray-200'
+                  }`}
+                >
+                  {isCurrent && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
+                      YOUR TIER
+                    </div>
+                  )}
+                  {isPopular && !isCurrent && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1 rounded-full text-xs font-semibold">
+                      MOST POPULAR
+                    </div>
+                  )}
+                  <div className="text-sm font-medium text-gray-500 mb-1">Tier {t}</div>
+                  <div className="text-xl font-bold text-gray-900 mb-4">
+                    {t === 1 ? 'Starter' : t === 2 ? 'Professional' : 'Legend'}
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Tasks/day</span>
+                      <span className="font-medium">{cfg.maxTasks}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Video reward</span>
+                      <span className="font-medium">{formatNaira(cfg.videoReward)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Ad reward</span>
+                      <span className="font-medium">{formatNaira(cfg.adReward)}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-gray-200 pt-2">
+                      <span className="text-gray-600">Daily income</span>
+                      <span className="font-bold text-emerald-600">{formatNaira(dailyEarnings(t as 1 | 2 | 3))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Monthly income</span>
+                      <span className="font-bold text-gray-900">{formatNaira(monthlyEarnings(t as 1 | 2 | 3))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Upgrade cost</span>
+                      <span className="font-medium">{t === 1 ? 'Free' : formatNaira(cfg.upgradePrice)}</span>
+                    </div>
+                  </div>
+                  {!isCurrent && (
+                    <a
+                      href="/dashboard/settings"
+                      className={`mt-5 block w-full py-3 text-center rounded-xl font-semibold transition ${
+                        isPopular
+                          ? 'bg-amber-500 text-white hover:bg-amber-600'
+                          : 'bg-purple-600 text-white hover:bg-purple-700'
+                      }`}
+                    >
+                      Upgrade to Tier {t}
+                    </a>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {nextTier && (
+            <div className="mt-6 bg-gray-50 rounded-xl p-4 text-center text-sm text-gray-600">
+              <span className="font-semibold text-gray-900">Smart move:</span> Tier {nextTier} costs just{' '}
+              {formatNaira(TIER_CONFIGS[nextTier].upgradePrice)} one-time but pays{' '}
+              {formatNaira(dailyEarnings(nextTier) - dailyEarnings(user.tier))} more per day — it pays for itself within{' '}
+              {Math.ceil(TIER_CONFIGS[nextTier].upgradePrice / (dailyEarnings(nextTier) - dailyEarnings(user.tier)))} day
+              {Math.ceil(TIER_CONFIGS[nextTier].upgradePrice / (dailyEarnings(nextTier) - dailyEarnings(user.tier))) === 1 ? '' : 's'}.
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>

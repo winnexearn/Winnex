@@ -10,13 +10,20 @@ export async function GET(request: Request) {
 
   const admin = createAdminClient()
 
+  const { data: doneTasks } = await admin
+    .from('tasks')
+    .select('content_url')
+    .eq('user_id', userId)
+    .eq('status', 'completed')
+
+  const seenUrls = doneTasks?.map((t) => t.content_url) || []
+
   const { data: videos } = await admin
     .from('content_pool')
     .select('*')
     .eq('content_type', 'tiktok_video')
     .eq('is_active', true)
     .order('id')
-    .limit(20)
 
   const { data: ads } = await admin
     .from('content_pool')
@@ -24,10 +31,12 @@ export async function GET(request: Request) {
     .eq('content_type', 'ad')
     .eq('is_active', true)
     .order('id')
-    .limit(20)
 
-  const shuffledVideos = (videos || []).sort(() => Math.random() - 0.5)
-  const shuffledAds = (ads || []).sort(() => Math.random() - 0.5)
+  const unseenVideos = (videos || []).filter((v) => !seenUrls.includes(v.url))
+  const unseenAds = (ads || []).filter((a) => !seenUrls.includes(a.url))
+
+  const shuffledVideos = unseenVideos.sort(() => Math.random() - 0.5)
+  const shuffledAds = unseenAds.sort(() => Math.random() - 0.5)
 
   return NextResponse.json({ videos: shuffledVideos, ads: shuffledAds })
 }

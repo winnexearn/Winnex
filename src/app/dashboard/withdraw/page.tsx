@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { User, Withdrawal } from '@/lib/types'
-import { formatNaira, formatDate } from '@/lib/utils'
+import {
+  formatNaira,
+  formatDate,
+  isWithdrawalDay,
+  daysUntilNextWithdrawalDay,
+  nextWithdrawalDayLabel,
+} from '@/lib/utils'
 
 export default function WithdrawPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -84,20 +90,42 @@ export default function WithdrawPage() {
     )
   }
 
+  const withdrawalOpen = isWithdrawalDay()
+  const daysUntil = daysUntilNextWithdrawalDay()
+  const nextDate = nextWithdrawalDayLabel()
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Withdraw Earnings</h1>
-        <p className="text-amber-100">Cash out your earnings to your bank account</p>
+        <p className="text-amber-100">Cash out your earnings to your bank account on the 1st of every month</p>
       </div>
+
+      {!withdrawalOpen && (
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+              <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-1">Withdrawals open on the 1st of every month</h3>
+              <p className="text-gray-600 text-sm">
+                Keep earning until then! Next withdrawal day is <span className="font-medium text-amber-700">{nextDate}</span> ({daysUntil} {daysUntil === 1 ? 'day' : 'days'} away).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Balance Card */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="text-center">
           <div className="text-sm text-gray-500 mb-1">Available Balance</div>
           <div className="text-4xl font-bold text-gray-900 mb-2">{formatNaira(user?.balance || 0)}</div>
-          <div className="text-sm text-gray-500">Minimum withdrawal: ₦1,000</div>
+          <div className="text-sm text-gray-500">Minimum withdrawal: ₦1,000 • Withdrawals open on the 1st of each month</div>
         </div>
       </div>
 
@@ -135,10 +163,12 @@ export default function WithdrawPage() {
 
           <button
             type="submit"
-            disabled={submitting || !amount || parseFloat(amount) < 1000}
+            disabled={submitting || !withdrawalOpen || !amount || parseFloat(amount) < 1000}
             className="w-full bg-amber-500 text-white py-3 rounded-xl font-semibold hover:bg-amber-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? 'Processing...' : 'Request Withdrawal'}
+            {withdrawalOpen
+              ? submitting ? 'Processing...' : 'Request Withdrawal'
+              : 'Withdrawals Open on the 1st'}
           </button>
         </form>
       </div>
