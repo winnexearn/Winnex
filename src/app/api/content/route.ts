@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUserId } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { seededShuffle, getDayKey, hashString } from '@/lib/rotation'
 
 export async function GET(request: Request) {
   const userId = await getCurrentUserId(request)
@@ -35,8 +36,19 @@ export async function GET(request: Request) {
   const unseenVideos = (videos || []).filter((v) => !seenUrls.includes(v.url))
   const unseenAds = (ads || []).filter((a) => !seenUrls.includes(a.url))
 
-  const shuffledVideos = unseenVideos.sort(() => Math.random() - 0.5)
-  const shuffledAds = unseenAds.sort(() => Math.random() - 0.5)
+  const dayKey = getDayKey()
+  const rotate = (n: number, items: unknown[]): unknown[] => {
+    if (n === 0 || items.length === 0) return items
+    const offset = n % items.length
+    return [...items.slice(offset), ...items.slice(0, offset)]
+  }
+
+  const videoSeed = hashString(`${dayKey}::${userId}`)
+  const adSeed = hashString(`${dayKey}::ad::${userId}`)
+  const dayOffset = hashString(dayKey)
+
+  const shuffledVideos = rotate(dayOffset, seededShuffle(unseenVideos, videoSeed))
+  const shuffledAds = rotate(dayOffset, seededShuffle(unseenAds, adSeed))
 
   return NextResponse.json({ videos: shuffledVideos, ads: shuffledAds })
 }
