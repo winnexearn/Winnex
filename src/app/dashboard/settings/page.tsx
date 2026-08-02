@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { User, TIER_CONFIGS } from '@/lib/types'
 import { formatNaira } from '@/lib/utils'
 
 export default function SettingsPage() {
+  const searchParams = useSearchParams()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [errorMsg, setErrorMsg] = useState('')
 
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/auth/me')
@@ -22,20 +25,40 @@ export default function SettingsPage() {
     fetchData()
   }, [fetchData])
 
+  useEffect(() => {
+    const upgradeStatus = searchParams.get('upgrade')
+    const error = searchParams.get('error')
+    if (upgradeStatus === 'success') {
+      setSuccess(true)
+      fetchData()
+      setTimeout(() => setSuccess(false), 5000)
+    }
+    if (error) {
+      const messages: Record<string, string> = {
+        no_ref: 'Invalid payment reference.',
+        unknown_ref: 'Payment record not found.',
+        payment_failed: 'Payment failed. Please try again.',
+        payment_not_verified: 'Payment could not be verified. Please contact support.',
+        upgrade_failed: 'Upgrade failed. Please try again.',
+        tier_update_failed: 'Tier update failed. Please contact support.',
+        network_error: 'Network error. Please try again.',
+        payment_misconfigured: 'Payment system not configured.',
+      }
+      setErrorMsg(messages[error] || 'An error occurred.')
+      setTimeout(() => setErrorMsg(''), 5000)
+    }
+  }, [searchParams, fetchData])
+
   const handleUpgradeTier = async (newTier: number) => {
     if (!user) return
 
     const tierConfig = TIER_CONFIGS[newTier]
-    if (user.balance < tierConfig.upgradePrice) {
-      alert('Insufficient balance. Please fund your account first.')
-      return
-    }
-
     if (!confirm(`Are you sure you want to upgrade to Tier ${newTier} for ${formatNaira(tierConfig.upgradePrice)}?`)) {
       return
     }
 
     setSaving(true)
+    setErrorMsg('')
 
     try {
       const res = await fetch('/api/tiers/upgrade', {
@@ -47,17 +70,20 @@ export default function SettingsPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        alert(data.error || 'Error upgrading tier. Please try again.')
+        alert(data.error || 'Error initiating payment. Please try again.')
         return
       }
 
-      setSuccess(true)
-      await fetchData()
-
-      setTimeout(() => setSuccess(false), 3000)
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url
+      } else {
+        setSuccess(true)
+        await fetchData()
+        setTimeout(() => setSuccess(false), 3000)
+      }
     } catch (err) {
       console.error('Upgrade error:', err)
-      alert('Error upgrading tier. Please try again.')
+      alert('Error initiating payment. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -86,7 +112,13 @@ export default function SettingsPage() {
 
       {success && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-          Tier upgraded successfully!
+          Tier upgraded successfully! Your new tier is now active.
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {errorMsg}
         </div>
       )}
 

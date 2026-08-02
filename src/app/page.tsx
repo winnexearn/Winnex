@@ -30,7 +30,7 @@ export default function Home() {
             </div>
 
             <button 
-              className="md:hidden p-2"
+              className="md:hidden p-2 text-gray-700"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
