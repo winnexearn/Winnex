@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 
-  const { email, password } = body
+  const { email, password, remember } = body
 
   if (!email || !password) {
     return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
@@ -34,6 +34,6 @@ export async function POST(request: Request) {
 
   const token = await createSessionToken(user.id)
   const response = NextResponse.json({ user: sanitizeUser(user) })
-  setSessionCookie(response, token)
+  setSessionCookie(response, token, remember !== false)
   return response
 }
