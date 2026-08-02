@@ -36,6 +36,7 @@ const admin = createClient(url, key, {
 })
 
 const urls = [
+  // From revid.ai trending today
   'https://www.tiktok.com/@mdmotivator/video/7659284646391188756',
   'https://www.tiktok.com/@leon.buhr5/video/7663056306093313312',
   'https://www.tiktok.com/@nicolejohnseyburke/video/7666586516021366047',
@@ -47,6 +48,19 @@ const urls = [
   'https://www.tiktok.com/@designlabwithg/video/7661103998929325325',
   'https://www.tiktok.com/@koa._official0/video/7661242709021035784',
   'https://www.tiktok.com/@historyun/video/7661754562348420374',
+  // From revid.ai most liked TikToks
+  'https://www.tiktok.com/@guccidiary/video/6800856290756283654',
+  'https://www.tiktok.com/@anjagregoran/video/7466718723177565462',
+  'https://www.tiktok.com/@trishlikefish88/video/7493671426377960747',
+  'https://www.tiktok.com/@limmytalks/video/7158910944704335147',
+  'https://www.tiktok.com/@sasha_osinovsky/video/7313942220774886702',
+  'https://www.tiktok.com/@.isaescu/video/7492574559812504875',
+  'https://www.tiktok.com/@jojayjijoju/video/7405062138827394321',
+  'https://www.tiktok.com/@musky.off/video/7383484019775769861',
+  'https://www.tiktok.com/@ailyncoronelk/video/7421672870683675910',
+  'https://www.tiktok.com/@benedetta.magni/video/7160277549870779653',
+  'https://www.tiktok.com/@dudamillerx/video/7507421421300108549',
+  'https://www.tiktok.com/@mdar1es/video/7450362616389651742',
 ]
 
 const { data: existing } = await admin
