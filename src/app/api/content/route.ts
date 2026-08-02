@@ -17,16 +17,15 @@ export async function GET(request: Request) {
     .eq('user_id', userId)
     .eq('status', 'completed')
     .order('created_at', { ascending: false })
-    .limit(200)
+    .limit(100)
 
   const seenUrls = new Set(doneTasks?.map((t) => t.content_url) || [])
 
   const { data: videos } = await admin
     .from('content_pool')
-    .select('*')
+    .select('id, url, title')
     .eq('content_type', 'tiktok_video')
     .eq('is_active', true)
-    .order('id')
 
   const unseenVideos = (videos || []).filter((v) => !seenUrls.has(v.url))
 

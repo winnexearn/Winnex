@@ -28,21 +28,10 @@ export async function POST(request: Request) {
   const admin = createAdminClient()
   const today = new Date().toISOString().split('T')[0]
 
-  if (user.last_task_date !== today) {
-    await admin
-      .from('users')
-      .update({ tasks_completed_today: 0, last_task_date: today })
-      .eq('id', user.id)
-  }
+  const isNewDay = user.last_task_date !== today
+  const currentCount = isNewDay ? 0 : (user.tasks_completed_today || 0)
 
-  const { count } = await admin
-    .from('tasks')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .eq('status', 'completed')
-    .gte('created_at', today)
-
-  if ((count || 0) >= limits.maxTasks) {
+  if (currentCount >= limits.maxTasks) {
     return NextResponse.json({ error: 'You have reached your daily task limit' }, { status: 400 })
   }
 
@@ -63,7 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: taskError.message }, { status: 500 })
   }
 
-  const newCount = (count || 0) + 1
+  const newCount = currentCount + 1
   const newBalance = user.balance + limits.videoReward
 
   const { error: balanceError } = await admin
