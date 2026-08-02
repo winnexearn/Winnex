@@ -20,7 +20,7 @@ export interface User {
 export interface Task {
   id: string
   user_id: string
-  task_type: 'tiktok_video' | 'ad_view'
+  task_type: 'tiktok_video'
   content_url: string
   content_title: string | null
   reward_amount: number
@@ -62,7 +62,7 @@ export interface Referral {
 
 export interface ContentPool {
   id: string
-  content_type: 'tiktok_video' | 'ad'
+  content_type: 'tiktok_video'
   url: string
   title: string | null
   description: string | null
@@ -74,9 +74,7 @@ export interface TierConfig {
   tier: number
   maxTasks: number
   maxVideos: number
-  maxAds: number
   videoReward: number
-  adReward: number
   upgradePrice: number
 }
 
@@ -85,27 +83,21 @@ export const TIER_CONFIGS: Record<number, TierConfig> = {
     tier: 1,
     maxTasks: 5,
     maxVideos: 3,
-    maxAds: 2,
     videoReward: 100,
-    adReward: 50,
     upgradePrice: 0,
   },
   2: {
     tier: 2,
     maxTasks: 8,
     maxVideos: 6,
-    maxAds: 2,
     videoReward: 200,
-    adReward: 100,
     upgradePrice: 1000,
   },
   3: {
     tier: 3,
     maxTasks: 10,
     maxVideos: 8,
-    maxAds: 2,
     videoReward: 300,
-    adReward: 150,
     upgradePrice: 2000,
   },
 }

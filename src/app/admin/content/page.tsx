@@ -5,7 +5,7 @@ import Link from 'next/link'
 
 interface PoolItem {
   id: string
-  content_type: 'tiktok_video' | 'ad'
+  content_type: 'tiktok_video'
   url: string
   title: string | null
   is_active: boolean
@@ -16,9 +16,8 @@ export default function AdminContentPage() {
   const [password, setPassword] = useState('')
   const [authenticated, setAuthenticated] = useState(false)
   const [content, setContent] = useState<PoolItem[]>([])
-  const [counts, setCounts] = useState({ videos: 0, ads: 0 })
+  const [counts, setCounts] = useState({ videos: 0 })
   const [loading, setLoading] = useState(true)
-  const [type, setType] = useState<'tiktok_video' | 'ad'>('tiktok_video')
   const [title, setTitle] = useState('')
   const [urls, setUrls] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -72,7 +71,7 @@ export default function AdminContentPage() {
           'x-admin-password': 'winnex_admin_2024',
         },
         body: JSON.stringify({
-          content_type: type,
+          content_type: 'tiktok_video',
           urls: urlList,
           title: title || null,
         }),
@@ -166,20 +165,14 @@ export default function AdminContentPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Content Manager</h1>
-            <p className="text-gray-600">Add TikTok video and ad links to the pool</p>
+            <p className="text-gray-600">Add TikTok video links to the pool</p>
           </div>
           <Link href="/admin" className="text-emerald-600 font-medium hover:text-emerald-700">← Back</Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="text-sm text-gray-500 mb-1">TikTok Videos</div>
-            <div className="text-3xl font-bold text-gray-900">{counts.videos}</div>
-          </div>
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <div className="text-sm text-gray-500 mb-1">Ads</div>
-            <div className="text-3xl font-bold text-gray-900">{counts.ads}</div>
-          </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-8">
+          <div className="text-sm text-gray-500 mb-1">TikTok Videos</div>
+          <div className="text-3xl font-bold text-gray-900">{counts.videos}</div>
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
@@ -192,18 +185,6 @@ export default function AdminContentPage() {
           )}
 
           <form onSubmit={handleAdd} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Content Type</label>
-              <select
-                className="w-full px-4 py-3 bg-white text-gray-900 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none"
-                value={type}
-                onChange={(e) => setType(e.target.value as 'tiktok_video' | 'ad')}
-              >
-                <option value="tiktok_video">TikTok Video</option>
-                <option value="ad">Ad</option>
-              </select>
-            </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Title (optional)</label>
               <input
@@ -228,7 +209,7 @@ export default function AdminContentPage() {
                 onChange={(e) => setUrls(e.target.value)}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Paste real TikTok video URLs or ad landing URLs. The app never reuses a link a user has already completed.
+                Paste real TikTok video URLs. The app never reuses a link a user has already completed.
               </p>
             </div>
 
@@ -252,12 +233,8 @@ export default function AdminContentPage() {
               {content.map((item) => (
                 <div key={item.id} className="flex items-center justify-between gap-3 p-3 bg-gray-50 rounded-xl">
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium shrink-0 ${
-                      item.content_type === 'tiktok_video'
-                        ? 'bg-pink-100 text-pink-700'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {item.content_type === 'tiktok_video' ? 'Video' : 'Ad'}
+                    <span className="px-2 py-1 rounded-full text-xs font-medium shrink-0 bg-pink-100 text-pink-700">
+                      Video
                     </span>
                     <div className="min-w-0">
                       <div className="text-sm font-medium text-gray-900 truncate">{item.title || 'Untitled'}</div>

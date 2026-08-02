@@ -111,7 +111,7 @@ export default function SettingsPage() {
   }
 
   const dailyEarnings = (tier: 1 | 2 | 3) =>
-    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward + TIER_CONFIGS[tier].maxAds * TIER_CONFIGS[tier].adReward
+    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward
 
   const monthlyEarnings = (tier: 1 | 2 | 3) => dailyEarnings(tier) * 30
 
@@ -160,12 +160,12 @@ export default function SettingsPage() {
               <div className="font-semibold">{formatNaira(TIER_CONFIGS[user?.tier || 1].videoReward)}</div>
             </div>
             <div>
-              <div className="opacity-80">Ad Reward</div>
-              <div className="font-semibold">{formatNaira(TIER_CONFIGS[user?.tier || 1].adReward)}</div>
-            </div>
-            <div>
               <div className="opacity-80">Daily Tasks</div>
               <div className="font-semibold">{TIER_CONFIGS[user?.tier || 1].maxTasks}</div>
+            </div>
+            <div>
+              <div className="opacity-80">Daily Income</div>
+              <div className="font-semibold">{formatNaira(dailyEarnings(user?.tier as 1 | 2 | 3 || 1))}</div>
             </div>
             <div>
               <div className="opacity-80">Balance</div>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
                 <div>
                   <div className="text-amber-600 font-semibold">Tier 2 - Professional</div>
                   <div className="text-sm text-gray-600 mt-1">
-                    ₦200/video • ₦100/ad • 8 tasks/day
+                    ₦200/video • 8 tasks/day
                   </div>
                   <div className="text-sm mt-2">
                     <span className="font-bold text-emerald-600">+₦{dailyEarnings(2).toLocaleString()}/day</span>
@@ -223,7 +223,7 @@ export default function SettingsPage() {
                 <div>
                   <div className="text-purple-600 font-semibold">Tier 3 - Legend</div>
                   <div className="text-sm text-gray-600 mt-1">
-                    ₦300/video • ₦150/ad • 10 tasks/day
+                    ₦300/video • 10 tasks/day
                   </div>
                   <div className="text-sm mt-2">
                     <span className="font-bold text-emerald-600">+₦{dailyEarnings(3).toLocaleString()}/day</span>

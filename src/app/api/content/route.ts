@@ -26,15 +26,7 @@ export async function GET(request: Request) {
     .eq('is_active', true)
     .order('id')
 
-  const { data: ads } = await admin
-    .from('content_pool')
-    .select('*')
-    .eq('content_type', 'ad')
-    .eq('is_active', true)
-    .order('id')
-
   const unseenVideos = (videos || []).filter((v) => !seenUrls.includes(v.url))
-  const unseenAds = (ads || []).filter((a) => !seenUrls.includes(a.url))
 
   const dayKey = getDayKey()
   const rotate = (n: number, items: unknown[]): unknown[] => {
@@ -44,11 +36,9 @@ export async function GET(request: Request) {
   }
 
   const videoSeed = hashString(`${dayKey}::${userId}`)
-  const adSeed = hashString(`${dayKey}::ad::${userId}`)
   const dayOffset = hashString(dayKey)
 
   const shuffledVideos = rotate(dayOffset, seededShuffle(unseenVideos, videoSeed))
-  const shuffledAds = rotate(dayOffset, seededShuffle(unseenAds, adSeed))
 
-  return NextResponse.json({ videos: shuffledVideos, ads: shuffledAds })
+  return NextResponse.json({ videos: shuffledVideos })
 }

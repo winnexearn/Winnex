@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const TIER_LIMITS: Record<number, { maxTasks: number; maxVideos: number; maxAds: number; videoReward: number; adReward: number }> = {
-  1: { maxTasks: 5, maxVideos: 3, maxAds: 2, videoReward: 100, adReward: 50 },
-  2: { maxTasks: 8, maxVideos: 6, maxAds: 2, videoReward: 200, adReward: 100 },
-  3: { maxTasks: 10, maxVideos: 8, maxAds: 2, videoReward: 300, adReward: 150 },
+const TIER_LIMITS: Record<number, { maxTasks: number; maxVideos: number; videoReward: number }> = {
+  1: { maxTasks: 5, maxVideos: 3, videoReward: 100 },
+  2: { maxTasks: 8, maxVideos: 6, videoReward: 200 },
+  3: { maxTasks: 10, maxVideos: 8, videoReward: 300 },
 }
 
 export async function POST(request: Request) {
@@ -28,13 +28,11 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
-  const poolType = task_type === 'tiktok_video' ? 'tiktok_video' : 'ad'
-
   const { data: poolItem } = await admin
     .from('content_pool')
     .select('id')
     .eq('url', content_url)
-    .eq('content_type', poolType)
+    .eq('content_type', 'tiktok_video')
     .eq('is_active', true)
     .maybeSingle()
 
@@ -55,9 +53,8 @@ export async function POST(request: Request) {
   }
 
   const today = new Date().toISOString().split('T')[0]
-  const todayKey = new Date().toISOString().split('T')[0]
 
-  if (user.last_task_date !== todayKey) {
+  if (user.last_task_date !== today) {
     await admin
       .from('users')
       .update({ tasks_completed_today: 0, last_task_date: today })
@@ -71,27 +68,23 @@ export async function POST(request: Request) {
     .gte('created_at', today)
 
   const completedTasks = todayTasks?.filter((t) => t.status === 'completed') || []
-  const videosCompleted = completedTasks.filter((t) => t.task_type === 'tiktok_video').length
-  const adsCompleted = completedTasks.filter((t) => t.task_type === 'ad_view').length
-  const totalCompleted = videosCompleted + adsCompleted
+  const totalCompleted = completedTasks.length
 
   if (totalCompleted >= limits.maxTasks) {
     return NextResponse.json({ error: 'You have reached your daily task limit' }, { status: 400 })
   }
 
+  const videosCompleted = completedTasks.filter((t) => t.task_type === 'tiktok_video').length
+
   if (task_type === 'tiktok_video' && videosCompleted >= limits.maxVideos) {
     return NextResponse.json({ error: 'You have reached your daily video limit' }, { status: 400 })
   }
 
-  if (task_type === 'ad_view' && adsCompleted >= limits.maxAds) {
-    return NextResponse.json({ error: 'You have reached your daily ad limit' }, { status: 400 })
-  }
-
-  const reward = task_type === 'tiktok_video' ? limits.videoReward : limits.adReward
+  const reward = limits.videoReward
 
   const { error: taskError } = await admin.from('tasks').insert({
     user_id: user.id,
-    task_type,
+    task_type: 'tiktok_video',
     content_url,
     content_title: content_title || null,
     reward_amount: reward,

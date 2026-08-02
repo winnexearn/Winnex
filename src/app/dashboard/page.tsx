@@ -42,11 +42,10 @@ export default function Dashboard() {
 
   const tierConfig = user ? TIER_CONFIGS[user.tier] : TIER_CONFIGS[1]
   const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
-  const adsCompleted = todayTasks.filter(t => t.task_type === 'ad_view' && t.status === 'completed').length
   const todayEarnings = todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0)
 
   const dailyEarnings = (tier: 1 | 2 | 3) =>
-    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward + TIER_CONFIGS[tier].maxAds * TIER_CONFIGS[tier].adReward
+    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward
 
   const monthlyEarnings = (tier: 1 | 2 | 3) => dailyEarnings(tier) * 30
 
@@ -137,26 +136,13 @@ export default function Dashboard() {
 
             <div>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-600">Ad Views</span>
-                <span className="font-medium">{adsCompleted}/{tierConfig.maxAds}</span>
-              </div>
-              <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all"
-                  style={{ width: `${(adsCompleted / tierConfig.maxAds) * 100}%` }}
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-600">Total Tasks</span>
-                <span className="font-medium">{videosCompleted + adsCompleted}/{tierConfig.maxTasks}</span>
+                <span className="font-medium">{videosCompleted}/{tierConfig.maxTasks}</span>
               </div>
               <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-emerald-500 to-green-500 rounded-full transition-all"
-                  style={{ width: `${((videosCompleted + adsCompleted) / tierConfig.maxTasks) * 100}%` }}
+                  style={{ width: `${(videosCompleted / tierConfig.maxTasks) * 100}%` }}
                 />
               </div>
             </div>
@@ -188,8 +174,8 @@ export default function Dashboard() {
                 <div className="font-semibold">{formatNaira(tierConfig.videoReward)}</div>
               </div>
               <div>
-                <div className="opacity-80">Ad Reward</div>
-                <div className="font-semibold">{formatNaira(tierConfig.adReward)}</div>
+                <div className="opacity-80">Daily Income</div>
+                <div className="font-semibold">{formatNaira(dailyEarnings(user?.tier as 1 | 2 | 3 || 1))}</div>
               </div>
             </div>
           </div>
@@ -266,10 +252,6 @@ export default function Dashboard() {
                       <span className="text-gray-600">Video reward</span>
                       <span className="font-medium">{formatNaira(cfg.videoReward)}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Ad reward</span>
-                      <span className="font-medium">{formatNaira(cfg.adReward)}</span>
-                    </div>
                     <div className="flex justify-between border-t border-gray-200 pt-2">
                       <span className="text-gray-600">Daily income</span>
                       <span className="font-bold text-emerald-600">{formatNaira(dailyEarnings(t as 1 | 2 | 3))}</span>
@@ -330,24 +312,13 @@ export default function Dashboard() {
             {todayTasks.slice(0, 5).map((task) => (
               <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    task.task_type === 'tiktok_video' ? 'bg-pink-100' : 'bg-blue-100'
-                  }`}>
-                    {task.task_type === 'tiktok_video' ? (
-                      <svg className="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48v-7.08a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-.81-.07 4.8 4.8 0 01-.38-.04z"/>
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
+                  <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-pink-600" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48v-7.08a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-.81-.07 4.8 4.8 0 01-.38-.04z"/>
+                    </svg>
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {task.task_type === 'tiktok_video' ? 'TikTok Video' : 'Ad View'}
-                    </div>
+                    <div className="font-medium text-gray-900">TikTok Video</div>
                     <div className="text-sm text-gray-500">{formatDate(task.created_at)}</div>
                   </div>
                 </div>

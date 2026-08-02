@@ -29,7 +29,7 @@ CREATE TABLE users (
 CREATE TABLE tasks (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-  task_type TEXT NOT NULL CHECK (task_type IN ('tiktok_video', 'ad_view')),
+  task_type TEXT NOT NULL CHECK (task_type IN ('tiktok_video')),
   content_url TEXT NOT NULL,
   content_title TEXT,
   reward_amount DECIMAL(10,2) NOT NULL,
@@ -58,6 +58,7 @@ CREATE TABLE tier_upgrades (
   to_tier INTEGER NOT NULL,
   amount_paid DECIMAL(10,2) NOT NULL,
   payment_status TEXT DEFAULT 'pending' CHECK (payment_status IN ('pending', 'completed', 'failed')),
+  squad_ref TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -71,10 +72,10 @@ CREATE TABLE referrals (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Content pool table (for random TikTok videos and ads)
+-- Content pool table (TikTok videos only)
 CREATE TABLE content_pool (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  content_type TEXT NOT NULL CHECK (content_type IN ('tiktok_video', 'ad')),
+  content_type TEXT NOT NULL CHECK (content_type IN ('tiktok_video')),
   url TEXT NOT NULL,
   title TEXT,
   description TEXT,
@@ -88,16 +89,14 @@ CREATE TABLE daily_task_limits (
   tier INTEGER UNIQUE NOT NULL,
   max_tasks INTEGER NOT NULL,
   max_videos INTEGER NOT NULL,
-  max_ads INTEGER NOT NULL,
-  video_reward DECIMAL(10,2) NOT NULL,
-  ad_reward DECIMAL(10,2) NOT NULL
+  video_reward DECIMAL(10,2) NOT NULL
 );
 
 -- Insert default tier limits
-INSERT INTO daily_task_limits (tier, max_tasks, max_videos, max_ads, video_reward, ad_reward) VALUES
-(1, 5, 3, 2, 100, 50),
-(2, 8, 6, 2, 200, 100),
-(3, 10, 8, 2, 300, 150);
+INSERT INTO daily_task_limits (tier, max_tasks, max_videos, video_reward) VALUES
+(1, 5, 3, 100),
+(2, 8, 6, 200),
+(3, 10, 8, 300);
 
 -- Create indexes
 CREATE INDEX idx_users_referral_code ON users(referral_code);

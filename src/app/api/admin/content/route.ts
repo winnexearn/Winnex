@@ -24,10 +24,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 
-  const videos = content?.filter((c) => c.content_type === 'tiktok_video').length || 0
-  const ads = content?.filter((c) => c.content_type === 'ad').length || 0
+  const videos = content?.length || 0
 
-  return NextResponse.json({ content: content || [], counts: { videos, ads } })
+  return NextResponse.json({ content: content || [], counts: { videos } })
 }
 
 export async function POST(request: Request) {
@@ -42,7 +41,7 @@ export async function POST(request: Request) {
 
   const { content_type, urls, title } = body
 
-  if (content_type !== 'tiktok_video' && content_type !== 'ad') {
+  if (content_type !== 'tiktok_video') {
     return NextResponse.json({ error: 'Invalid content type' }, { status: 400 })
   }
 
@@ -72,7 +71,7 @@ export async function POST(request: Request) {
   const toInsert = validUrls
     .filter((u: string) => !existingSet.has(u))
     .map((u: string) => ({
-      content_type,
+      content_type: 'tiktok_video' as const,
       url: u,
       title: title || null,
       description: null,

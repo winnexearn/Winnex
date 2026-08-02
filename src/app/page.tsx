@@ -73,7 +73,7 @@ export default function Home() {
                 Turn Your Screen Time Into <span className="text-yellow-300">Real Money</span>
               </h1>
               <p className="text-lg md:text-xl text-emerald-100 mb-8 max-w-lg">
-                Watch ads, like TikTok videos, and earn daily rewards. Join thousands of Nigerians already earning with Winnex Earn.
+                Watch TikTok videos, and earn daily rewards. Join thousands of Nigerians already earning with Winnex Earn.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/register" className="bg-white text-emerald-700 px-8 py-4 rounded-full font-bold text-lg hover:bg-emerald-50 transition shadow-lg text-center">
@@ -141,7 +141,7 @@ export default function Home() {
                 <span className="text-white text-2xl font-bold">2</span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Complete Tasks</h3>
-              <p className="text-gray-600">Watch ads and like TikTok videos. Each task earns you instant rewards.</p>
+              <p className="text-gray-600">Like TikTok videos. Each task earns you instant rewards.</p>
             </div>
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-purple-50 to-indigo-50 border border-purple-100">
               <div className="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -184,19 +184,7 @@ export default function Home() {
                   <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600">2 ad views</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
                   <span className="text-gray-600">₦100 per video</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-600">₦50 per ad</span>
                 </li>
               </ul>
               <Link href="/register" className="block w-full py-3 text-center border-2 border-emerald-600 text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition">
@@ -229,19 +217,7 @@ export default function Home() {
                   <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600">2 ad views</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
                   <span className="text-gray-600 font-medium">₦200 per video</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-600 font-medium">₦100 per ad</span>
                 </li>
               </ul>
               <Link href="/register?tier=2" className="block w-full py-3 text-center bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition">
@@ -274,19 +250,7 @@ export default function Home() {
                     <svg className="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-purple-100">2 ad views</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
                     <span className="text-white font-medium">₦300 per video</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-white font-medium">₦150 per ad</span>
                   </li>
                 </ul>
                 <Link href="/register?tier=3" className="block w-full py-3 text-center bg-white text-purple-700 rounded-xl font-semibold hover:bg-purple-50 transition">
