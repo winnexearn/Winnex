@@ -73,7 +73,6 @@ export interface ContentPool {
 export interface TierConfig {
   tier: number
   maxTasks: number
-  maxVideos: number
   videoReward: number
   upgradePrice: number
 }
@@ -82,21 +81,18 @@ export const TIER_CONFIGS: Record<number, TierConfig> = {
   1: {
     tier: 1,
     maxTasks: 5,
-    maxVideos: 3,
     videoReward: 100,
     upgradePrice: 0,
   },
   2: {
     tier: 2,
     maxTasks: 8,
-    maxVideos: 6,
     videoReward: 200,
     upgradePrice: 1000,
   },
   3: {
     tier: 3,
     maxTasks: 10,
-    maxVideos: 8,
     videoReward: 300,
     upgradePrice: 2000,
   },

@@ -88,15 +88,14 @@ CREATE TABLE daily_task_limits (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   tier INTEGER UNIQUE NOT NULL,
   max_tasks INTEGER NOT NULL,
-  max_videos INTEGER NOT NULL,
   video_reward DECIMAL(10,2) NOT NULL
 );
 
 -- Insert default tier limits
-INSERT INTO daily_task_limits (tier, max_tasks, max_videos, video_reward) VALUES
-(1, 5, 3, 100),
-(2, 8, 6, 200),
-(3, 10, 8, 300);
+INSERT INTO daily_task_limits (tier, max_tasks, video_reward) VALUES
+(1, 5, 100),
+(2, 8, 200),
+(3, 10, 300);
 
 -- Create indexes
 CREATE INDEX idx_users_referral_code ON users(referral_code);

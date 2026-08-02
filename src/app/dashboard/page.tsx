@@ -45,7 +45,7 @@ export default function Dashboard() {
   const todayEarnings = todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0)
 
   const dailyEarnings = (tier: 1 | 2 | 3) =>
-    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward
+    TIER_CONFIGS[tier].maxTasks * TIER_CONFIGS[tier].videoReward
 
   const monthlyEarnings = (tier: 1 | 2 | 3) => dailyEarnings(tier) * 30
 
@@ -124,12 +124,12 @@ export default function Dashboard() {
             <div>
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-600">TikTok Videos</span>
-                <span className="font-medium">{videosCompleted}/{tierConfig.maxVideos}</span>
+                <span className="font-medium">{videosCompleted}/{tierConfig.maxTasks}</span>
               </div>
               <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-pink-500 to-rose-500 rounded-full transition-all"
-                  style={{ width: `${(videosCompleted / tierConfig.maxVideos) * 100}%` }}
+                  style={{ width: `${(videosCompleted / tierConfig.maxTasks) * 100}%` }}
                 />
               </div>
             </div>

@@ -111,7 +111,7 @@ export default function SettingsPage() {
   }
 
   const dailyEarnings = (tier: 1 | 2 | 3) =>
-    TIER_CONFIGS[tier].maxVideos * TIER_CONFIGS[tier].videoReward
+    TIER_CONFIGS[tier].maxTasks * TIER_CONFIGS[tier].videoReward
 
   const monthlyEarnings = (tier: 1 | 2 | 3) => dailyEarnings(tier) * 30
 

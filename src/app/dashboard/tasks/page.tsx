@@ -57,11 +57,6 @@ export default function TasksPage() {
     const tierConfig = TIER_CONFIGS[user.tier]
     const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
 
-    if (videosCompleted >= tierConfig.maxVideos) {
-      showToast('You have reached your daily video limit!')
-      return
-    }
-
     if (videosCompleted >= tierConfig.maxTasks) {
       showToast('You have reached your daily task limit!')
       return
@@ -110,7 +105,7 @@ export default function TasksPage() {
   const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
   const todayEarnings = todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0)
 
-  const videosLimitReached = videosCompleted >= tierConfig.maxVideos
+  const videosLimitReached = videosCompleted >= tierConfig.maxTasks
 
   return (
     <div className="space-y-6">
@@ -133,7 +128,7 @@ export default function TasksPage() {
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <div className="text-sm text-gray-500 mb-1">Videos Done</div>
-          <div className="text-2xl font-bold text-gray-900">{videosCompleted}<span className="text-gray-400 text-lg">/{tierConfig.maxVideos}</span></div>
+          <div className="text-2xl font-bold text-gray-900">{videosCompleted}<span className="text-gray-400 text-lg">/{tierConfig.maxTasks}</span></div>
           <div className="text-xs text-emerald-600">{formatNaira(tierConfig.videoReward)}/video</div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">

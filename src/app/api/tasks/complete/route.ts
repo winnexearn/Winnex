@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const TIER_LIMITS: Record<number, { maxTasks: number; maxVideos: number; videoReward: number }> = {
-  1: { maxTasks: 5, maxVideos: 3, videoReward: 100 },
-  2: { maxTasks: 8, maxVideos: 6, videoReward: 200 },
-  3: { maxTasks: 10, maxVideos: 8, videoReward: 300 },
+const TIER_LIMITS: Record<number, { maxTasks: number; videoReward: number }> = {
+  1: { maxTasks: 5, videoReward: 100 },
+  2: { maxTasks: 8, videoReward: 200 },
+  3: { maxTasks: 10, videoReward: 300 },
 }
 
 export async function POST(request: Request) {
@@ -72,12 +72,6 @@ export async function POST(request: Request) {
 
   if (totalCompleted >= limits.maxTasks) {
     return NextResponse.json({ error: 'You have reached your daily task limit' }, { status: 400 })
-  }
-
-  const videosCompleted = completedTasks.filter((t) => t.task_type === 'tiktok_video').length
-
-  if (task_type === 'tiktok_video' && videosCompleted >= limits.maxVideos) {
-    return NextResponse.json({ error: 'You have reached your daily video limit' }, { status: 400 })
   }
 
   const reward = limits.videoReward
