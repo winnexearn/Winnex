@@ -53,66 +53,33 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.full_name?.split(' ')[0]}!</h1>
+
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
-        <h1 className="text-2xl font-bold mb-2">Welcome back, {user?.full_name?.split(' ')[0]}!</h1>
-        <p className="text-emerald-100">You&apos;re on Tier {user?.tier}. Keep earning to level up!</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-emerald-100 text-sm">Your Balance</p>
+            <div className="text-3xl font-bold">{formatNaira(user?.balance || 0)}</div>
+          </div>
+          <div className="text-right">
+            <p className="text-emerald-100 text-sm">Tier {user?.tier}</p>
+            <p className="text-emerald-200 text-xs">Keep earning to level up!</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Balance</div>
-              <div className="text-xl font-bold text-gray-900">{formatNaira(user?.balance || 0)}</div>
-            </div>
-          </div>
+          <div className="text-sm text-gray-500 mb-1">Today&apos;s Earnings</div>
+          <div className="text-xl font-bold text-gray-900">{formatNaira(todayEarnings)}</div>
         </div>
-
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Today&apos;s Earnings</div>
-              <div className="text-xl font-bold text-gray-900">{formatNaira(todayEarnings)}</div>
-            </div>
-          </div>
+          <div className="text-sm text-gray-500 mb-1">Tasks Done</div>
+          <div className="text-xl font-bold text-gray-900">{todayTasks.filter(t => t.status === 'completed').length}/{tierConfig.maxTasks}</div>
         </div>
-
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Tasks Done</div>
-              <div className="text-xl font-bold text-gray-900">{todayTasks.filter(t => t.status === 'completed').length}/{tierConfig.maxTasks}</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-              </svg>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500">Total Earned</div>
-              <div className="text-xl font-bold text-gray-900">{formatNaira(user?.total_earned || 0)}</div>
-            </div>
-          </div>
+          <div className="text-sm text-gray-500 mb-1">Total Earned</div>
+          <div className="text-xl font-bold text-gray-900">{formatNaira(user?.total_earned || 0)}</div>
         </div>
       </div>
 
