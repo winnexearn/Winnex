@@ -16,7 +16,7 @@ export default function TasksPage() {
   const [todayTasks, setTodayTasks] = useState<Task[]>([])
   const [videos, setVideos] = useState<ContentItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [claiming, setClaiming] = useState<string | null>(null)
+  const [claiming, setClaiming] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
@@ -51,9 +51,10 @@ export default function TasksPage() {
     setTimeout(() => setToast(null), 4000)
   }
 
-  const handleClaim = async (content: ContentItem) => {
-    if (!user || claiming) return
+  const handleClaim = async () => {
+    if (!user || claiming || videos.length === 0) return
 
+    const currentTask = videos[0]
     const tierConfig = TIER_CONFIGS[user.tier]
     const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
 
@@ -62,7 +63,7 @@ export default function TasksPage() {
       return
     }
 
-    setClaiming(content.id)
+    setClaiming(true)
 
     try {
       const res = await fetch('/api/tasks/complete', {
@@ -70,8 +71,8 @@ export default function TasksPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           task_type: 'tiktok_video',
-          content_url: content.url,
-          content_title: content.title,
+          content_url: currentTask.url,
+          content_title: currentTask.title,
         }),
       })
 
@@ -82,14 +83,14 @@ export default function TasksPage() {
         return
       }
 
-      window.open(content.url, '_blank')
+      window.open(currentTask.url, '_blank')
       showToast(`+${formatNaira(data.reward)} earned! Keep going.`)
       await fetchData()
     } catch (err) {
       console.error('Error completing task:', err)
       showToast('Error completing task. Please try again.')
     } finally {
-      setClaiming(null)
+      setClaiming(false)
     }
   }
 
@@ -105,7 +106,9 @@ export default function TasksPage() {
   const videosCompleted = todayTasks.filter(t => t.task_type === 'tiktok_video' && t.status === 'completed').length
   const todayEarnings = todayTasks.filter(t => t.status === 'completed').reduce((sum, t) => sum + t.reward_amount, 0)
 
-  const videosLimitReached = videosCompleted >= tierConfig.maxTasks
+  const limitReached = videosCompleted >= tierConfig.maxTasks
+  const currentTask = videos[0] || null
+  const remaining = tierConfig.maxTasks - videosCompleted
 
   return (
     <div className="space-y-6">
@@ -120,69 +123,77 @@ export default function TasksPage() {
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Complete Tasks & Earn</h1>
         <p className="text-emerald-100">
-          Tap a task, it opens on TikTok, and your reward is credited instantly.
+          Tap the button, it opens on TikTok, and your reward is credited instantly.
         </p>
       </div>
 
       {/* Progress Cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="text-sm text-gray-500 mb-1">Videos Done</div>
-          <div className="text-2xl font-bold text-gray-900">{videosCompleted}<span className="text-gray-400 text-lg">/{tierConfig.maxTasks}</span></div>
-          <div className="text-xs text-emerald-600">{formatNaira(tierConfig.videoReward)}/video</div>
-        </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="text-sm text-gray-500 mb-1">Total Tasks</div>
+          <div className="text-sm text-gray-500 mb-1">Done</div>
           <div className="text-2xl font-bold text-gray-900">{videosCompleted}<span className="text-gray-400 text-lg">/{tierConfig.maxTasks}</span></div>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <div className="text-sm text-gray-500 mb-1">Today&apos;s Earnings</div>
+          <div className="text-sm text-gray-500 mb-1">Left</div>
+          <div className="text-2xl font-bold text-emerald-600">{remaining}</div>
+        </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="text-sm text-gray-500 mb-1">Earned</div>
           <div className="text-2xl font-bold text-emerald-600">{formatNaira(todayEarnings)}</div>
         </div>
       </div>
 
-      {/* Task List */}
-      <div className="space-y-4">
-        {videosLimitReached ? (
-          <div className="bg-white rounded-2xl p-8 text-center">
-            <svg className="w-16 h-16 mx-auto mb-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily limit reached!</h3>
-            <p className="text-gray-500">Come back tomorrow for more tasks.</p>
-          </div>
-        ) : videos.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center">
-            <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No new videos right now</h3>
-            <p className="text-gray-500">Check back later — new videos are added regularly.</p>
-          </div>
-        ) : (
-          videos.map((content, index) => (
-            <div key={content.id} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center text-white text-2xl font-bold">
-                  {index + 1}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{content.title || 'TikTok Video'}</h3>
-                  <p className="text-sm text-gray-500">Like this video on TikTok</p>
-                  <div className="text-emerald-600 font-medium mt-1">+{formatNaira(tierConfig.videoReward)}</div>
-                </div>
-              </div>
-              <button
-                onClick={() => handleClaim(content)}
-                disabled={claiming === content.id}
-                className="mt-3 w-full py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
-              >
-                {claiming === content.id ? 'Earning...' : `Watch & Earn ${formatNaira(tierConfig.videoReward)}`}
-              </button>
+      {/* Current Task */}
+      {limitReached ? (
+        <div className="bg-white rounded-2xl p-8 text-center">
+          <svg className="w-16 h-16 mx-auto mb-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily limit reached!</h3>
+          <p className="text-gray-500">Come back tomorrow for more tasks.</p>
+        </div>
+      ) : !currentTask ? (
+        <div className="bg-white rounded-2xl p-8 text-center">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No new videos right now</h3>
+          <p className="text-gray-500">Check back later — new videos are added regularly.</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="text-center mb-4">
+            <div className="text-sm text-gray-500 mb-1">Task {videosCompleted + 1} of {tierConfig.maxTasks}</div>
+            <div className="w-full bg-gray-100 rounded-full h-2">
+              <div
+                className="bg-emerald-500 h-2 rounded-full transition-all"
+                style={{ width: `${(videosCompleted / tierConfig.maxTasks) * 100}%` }}
+              />
             </div>
-          ))
-        )}
-      </div>
+          </div>
+
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center shrink-0">
+              <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86 4.48v-7.08a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-.81-.07 4.8 4.8 0 01-.38-.04z"/>
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-gray-900 truncate">{currentTask.title || 'TikTok Video'}</h3>
+              <p className="text-sm text-gray-500">Like this video on TikTok</p>
+              <div className="text-emerald-600 font-bold mt-1">+{formatNaira(tierConfig.videoReward)}</div>
+            </div>
+          </div>
+
+          <button
+            onClick={handleClaim}
+            disabled={claiming}
+            className="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold text-lg hover:bg-emerald-700 transition disabled:opacity-50"
+          >
+            {claiming ? 'Earning...' : `Watch & Earn ${formatNaira(tierConfig.videoReward)}`}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
