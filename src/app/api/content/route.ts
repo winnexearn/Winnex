@@ -16,8 +16,10 @@ export async function GET(request: Request) {
     .select('content_url')
     .eq('user_id', userId)
     .eq('status', 'completed')
+    .order('created_at', { ascending: false })
+    .limit(200)
 
-  const seenUrls = doneTasks?.map((t) => t.content_url) || []
+  const seenUrls = new Set(doneTasks?.map((t) => t.content_url) || [])
 
   const { data: videos } = await admin
     .from('content_pool')
@@ -26,7 +28,7 @@ export async function GET(request: Request) {
     .eq('is_active', true)
     .order('id')
 
-  const unseenVideos = (videos || []).filter((v) => !seenUrls.includes(v.url))
+  const unseenVideos = (videos || []).filter((v) => !seenUrls.has(v.url))
 
   const dayKey = getDayKey()
   const rotate = (n: number, items: unknown[]): unknown[] => {
