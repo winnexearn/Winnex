@@ -94,6 +94,6 @@ export const TIER_CONFIGS: Record<number, TierConfig> = {
     tier: 3,
     maxTasks: 10,
     videoReward: 300,
-    upgradePrice: 2000,
+    upgradePrice: 3000,
   },
 }

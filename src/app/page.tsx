@@ -220,7 +220,7 @@ export default function Home() {
               <div className="relative">
                 <div className="text-purple-200 font-medium mb-2">TIER 3</div>
                 <h3 className="text-2xl font-bold mb-4">Legend</h3>
-                <div className="text-4xl font-bold mb-6">₦2,000<span className="text-lg text-purple-200 font-normal">/one-time</span></div>
+                <div className="text-4xl font-bold mb-6">₦3,000<span className="text-lg text-purple-200 font-normal">/one-time</span></div>
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">

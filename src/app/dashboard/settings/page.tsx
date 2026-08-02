@@ -233,7 +233,7 @@ export default function SettingsPage() {
                   <div className="text-xs text-gray-500 mt-1">
                     Double your income compared to Tier {user.tier === 1 ? '1' : '2'}.
                   </div>
-                  <div className="text-lg font-bold text-gray-900 mt-2">{formatNaira(2000)}</div>
+                  <div className="text-lg font-bold text-gray-900 mt-2">{formatNaira(3000)}</div>
                 </div>
                 <button
                   onClick={() => handleUpgradeTier(3)}

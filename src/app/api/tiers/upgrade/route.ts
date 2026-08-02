@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const TIER_PRICES: Record<number, number> = { 1: 0, 2: 1000, 3: 2000 }
+const TIER_PRICES: Record<number, number> = { 1: 0, 2: 1000, 3: 3000 }
 
 export async function POST(request: Request) {
   const user = await getSessionUser(request)
