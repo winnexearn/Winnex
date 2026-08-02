@@ -11,6 +11,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [processing, setProcessing] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
   const fetchData = useCallback(async () => {
@@ -30,8 +31,20 @@ export default function SettingsPage() {
     const error = searchParams.get('error')
     if (upgradeStatus === 'success') {
       setSuccess(true)
+      setProcessing(false)
       fetchData()
       setTimeout(() => setSuccess(false), 5000)
+    }
+    if (upgradeStatus === 'processing') {
+      setProcessing(true)
+      fetchData()
+      const poll = setInterval(() => {
+        fetchData()
+      }, 3000)
+      setTimeout(() => {
+        clearInterval(poll)
+        setProcessing(false)
+      }, 30000)
     }
     if (error) {
       const messages: Record<string, string> = {
@@ -113,6 +126,13 @@ export default function SettingsPage() {
       {success && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
           Tier upgraded successfully! Your new tier is now active.
+        </div>
+      )}
+
+      {processing && (
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-blue-700 text-sm flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          Payment received! Confirming with SquadCo... This may take a few seconds.
         </div>
       )}
 
