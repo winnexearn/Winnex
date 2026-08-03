@@ -17,6 +17,8 @@ export default function SettingsPage() {
   const [accountNumber, setAccountNumber] = useState('')
   const [savingBank, setSavingBank] = useState(false)
   const [bankSuccess, setBankSuccess] = useState(false)
+  const [txnId, setTxnId] = useState('')
+  const [verifying, setVerifying] = useState(false)
 
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/auth/me')
@@ -114,6 +116,43 @@ export default function SettingsPage() {
     }
   }
 
+  const handleManualVerify = async () => {
+    if (!txnId.trim()) {
+      setErrorMsg('Please enter your transaction ID.')
+      setTimeout(() => setErrorMsg(''), 4000)
+      return
+    }
+
+    setVerifying(true)
+    setErrorMsg('')
+
+    try {
+      const res = await fetch('/api/tiers/manual-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transaction_id: txnId.trim() }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Verification failed.')
+        setTimeout(() => setErrorMsg(''), 5000)
+        return
+      }
+
+      setSuccess(true)
+      setTxnId('')
+      await fetchData()
+      setTimeout(() => setSuccess(false), 5000)
+    } catch {
+      setErrorMsg('Error verifying payment. Please try again.')
+      setTimeout(() => setErrorMsg(''), 4000)
+    } finally {
+      setVerifying(false)
+    }
+  }
+
   const handleUpgradeTier = async (newTier: number) => {
     if (!user) return
 
@@ -193,6 +232,31 @@ export default function SettingsPage() {
           {errorMsg}
         </div>
       )}
+
+      {/* Manual Payment Verification */}
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">Paid but tier not updated?</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          If your payment was successful but your tier wasn&apos;t upgraded, enter your SquadCo transaction ID below.
+          You can find it in your SquadCo payment receipt or email.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            value={txnId}
+            onChange={(e) => setTxnId(e.target.value)}
+            placeholder="e.g. SQWINN6392135579667800029"
+            className="flex-1 px-4 py-3 border border-amber-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+          />
+          <button
+            onClick={handleManualVerify}
+            disabled={verifying}
+            className="px-6 py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 transition disabled:opacity-50"
+          >
+            {verifying ? 'Verifying...' : 'Verify Payment'}
+          </button>
+        </div>
+      </div>
 
       {/* Current Tier */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
