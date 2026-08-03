@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Winnex Earn - Earn Money from TikTok",
     description: "Earn money by liking TikTok videos.",
-    url: "https://winnexearn.com",
+    url: "https://winnexearn.site",
     siteName: "Winnex Earn",
     locale: "en_NG",
     type: "website",
