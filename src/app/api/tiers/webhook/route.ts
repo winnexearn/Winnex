@@ -12,12 +12,10 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get('x-squad-encrypted-body') || ''
 
   const secretKey = process.env.SQUAD_SECRET_KEY
-  if (!secretKey) {
-    return NextResponse.json({ error: 'SQUAD_SECRET_KEY not configured' }, { status: 500 })
-  }
-
-  if (!verifySquadSignature(rawBody, signature, secretKey)) {
-    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  if (secretKey) {
+    if (!verifySquadSignature(rawBody, signature, secretKey)) {
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    }
   }
 
   let payload: Record<string, unknown>

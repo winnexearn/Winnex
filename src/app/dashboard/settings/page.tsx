@@ -42,6 +42,10 @@ export default function SettingsPage() {
       fetchData()
       setTimeout(() => setSuccess(false), 5000)
     }
+    if (upgradeStatus === 'expired') {
+      setErrorMsg('Payment expired. Please try again.')
+      setTimeout(() => setErrorMsg(''), 5000)
+    }
     if (upgradeStatus === 'processing') {
       setProcessing(true)
       fetchData()
@@ -173,7 +177,7 @@ export default function SettingsPage() {
 
       {success && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-          Tier upgraded successfully! Your new tier is now active.
+          Payment confirmed! Your tier has been upgraded.
         </div>
       )}
 
