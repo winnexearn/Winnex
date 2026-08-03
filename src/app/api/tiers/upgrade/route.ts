@@ -34,6 +34,15 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient()
 
+  // Auto-expire pending upgrades older than 30 minutes
+  const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
+  await admin
+    .from('tier_upgrades')
+    .update({ payment_status: 'expired' })
+    .eq('user_id', user.id)
+    .eq('payment_status', 'pending')
+    .lt('created_at', thirtyMinAgo)
+
   const { data: pending } = await admin
     .from('tier_upgrades')
     .select('id')

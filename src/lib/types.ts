@@ -46,7 +46,7 @@ export interface TierUpgrade {
   from_tier: number
   to_tier: number
   amount_paid: number
-  payment_status: 'pending' | 'completed' | 'failed'
+  payment_status: 'pending' | 'completed' | 'failed' | 'expired'
   created_at: string
 }
 
