@@ -6,7 +6,6 @@ interface User {
   id: string
   full_name: string
   email: string
-  phone: string
   tier: number
   balance: number
   tasks_completed_today: number
@@ -272,7 +271,7 @@ function UsersTab({ password }: { password: string }) {
         <div className="flex gap-2">
           <input
             type="text"
-            placeholder="Search name, email, phone..."
+            placeholder="Search name or email..."
             className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none w-64"
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1) }}
@@ -299,7 +298,6 @@ function UsersTab({ password }: { password: string }) {
                   <tr className="bg-gray-50 border-b border-gray-100">
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Email</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Phone</th>
                     <th className="text-center px-4 py-3 font-medium text-gray-600">Tier</th>
                     <th className="text-right px-4 py-3 font-medium text-gray-600">Balance</th>
                     <th className="text-center px-4 py-3 font-medium text-gray-600">Tasks Today</th>
@@ -311,7 +309,6 @@ function UsersTab({ password }: { password: string }) {
                     <tr key={user.id} className="hover:bg-gray-50 transition">
                       <td className="px-4 py-3 font-medium text-gray-900">{user.full_name || '—'}</td>
                       <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                      <td className="px-4 py-3 text-gray-600">{user.phone || '—'}</td>
                       <td className="px-4 py-3 text-center">
                         <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
                           user.tier === 3 ? 'bg-purple-100 text-purple-700' :
@@ -332,7 +329,7 @@ function UsersTab({ password }: { password: string }) {
                   ))}
                   {users.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-4 py-12 text-center text-gray-500">No users found</td>
+                        <td colSpan={6} className="px-4 py-12 text-center text-gray-500">No users found</td>
                     </tr>
                   )}
                 </tbody>

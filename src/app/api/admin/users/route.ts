@@ -19,10 +19,10 @@ export async function GET(request: Request) {
 
   let query = admin
     .from('users')
-    .select('id, full_name, email, phone, tier, balance, tasks_completed_today, referred_by, created_at', { count: 'exact' })
+    .select('id, full_name, email, tier, balance, tasks_completed_today, referred_by, created_at', { count: 'exact' })
 
   if (search) {
-    query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`)
+    query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`)
   }
 
   const { data: users, count, error } = await query
