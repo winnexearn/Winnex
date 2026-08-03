@@ -84,11 +84,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <Link href="/dashboard/settings" className="block bg-amber-50 border border-amber-200 rounded-xl p-4 text-center hover:bg-amber-100 transition">
-        <span className="text-amber-700 font-medium">Verify Payment</span>
-        <span className="text-amber-600 text-sm ml-2">— Paid but tier not updated?</span>
-      </Link>
-
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Today&apos;s Progress</h2>
@@ -175,6 +170,10 @@ export default function Dashboard() {
               </a>
             </div>
           )}
+
+          <Link href="/dashboard/settings" className="mt-4 block bg-amber-50 border border-amber-200 rounded-xl p-3 text-center hover:bg-amber-100 transition">
+            <span className="text-amber-700 font-medium text-sm">Verify Payment</span>
+          </Link>
         </div>
       </div>
 
@@ -190,6 +189,7 @@ export default function Dashboard() {
             {[1, 2, 3].map((t) => {
               const cfg = TIER_CONFIGS[t as 1 | 2 | 3]
               const isCurrent = user.tier === t
+              const isHigher = t > (user.tier || 1)
               const isPopular = t === 2
               return (
                 <div
@@ -197,7 +197,7 @@ export default function Dashboard() {
                   className={`relative rounded-2xl p-6 border-2 transition ${
                     isCurrent
                       ? 'border-emerald-500 bg-emerald-50'
-                      : isPopular
+                      : isPopular && isHigher
                         ? 'border-amber-400 bg-amber-50'
                         : 'border-gray-200'
                   }`}
@@ -207,7 +207,7 @@ export default function Dashboard() {
                       YOUR TIER
                     </div>
                   )}
-                  {isPopular && !isCurrent && (
+                  {isPopular && isHigher && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1 rounded-full text-xs font-semibold">
                       MOST POPULAR
                     </div>
@@ -238,7 +238,7 @@ export default function Dashboard() {
                       <span className="font-medium">{t === 1 ? 'Free' : formatNaira(cfg.upgradePrice)}</span>
                     </div>
                   </div>
-                  {!isCurrent && (
+                  {!isCurrent && isHigher && (
                     <a
                       href="/dashboard/settings"
                       className={`mt-5 block w-full py-3 text-center rounded-xl font-semibold transition ${
