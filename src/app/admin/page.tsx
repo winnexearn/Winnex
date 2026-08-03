@@ -160,17 +160,14 @@ export default function AdminPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid md:grid-cols-3 gap-4">
-            <a href="/admin/users" className="p-4 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition text-center">
-              <div className="font-medium text-emerald-700">Manage Users</div>
-            </a>
-            <a href="/admin/withdrawals" className="p-4 bg-amber-50 rounded-xl hover:bg-amber-100 transition text-center">
-              <div className="font-medium text-amber-700">Review Withdrawals</div>
-            </a>
             <a href="/admin/reviews" className="p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition text-center">
               <div className="font-medium text-blue-700">Payment Reviews</div>
             </a>
             <a href="/admin/content" className="p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition text-center">
               <div className="font-medium text-purple-700">Manage Content</div>
+            </a>
+            <a href="/admin/reviews" className="p-4 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition text-center">
+              <div className="font-medium text-emerald-700">View Users</div>
             </a>
           </div>
         </div>
