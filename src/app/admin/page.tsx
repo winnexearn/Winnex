@@ -19,7 +19,7 @@ export default function AdminPage() {
   const fetchStats = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/stats', {
-        headers: { 'x-admin-password': 'winnex_admin_2024' },
+        headers: { 'x-admin-password': password },
       })
 
       if (res.ok) {
@@ -29,7 +29,7 @@ export default function AdminPage() {
       console.error('Admin stats error:', err)
     }
     setLoading(false)
-  }, [])
+  }, [password])
 
   useEffect(() => {
     if (authenticated) {
@@ -37,9 +37,12 @@ export default function AdminPage() {
     }
   }, [authenticated, fetchStats])
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === 'winnex_admin_2024') {
+    const res = await fetch('/api/admin/stats', {
+      headers: { 'x-admin-password': password },
+    })
+    if (res.ok) {
       setAuthenticated(true)
     } else {
       alert('Invalid password')

@@ -25,7 +25,7 @@ export default function AdminContentPage() {
 
   const fetchContent = useCallback(async () => {
     const res = await fetch('/api/admin/content', {
-      headers: { 'x-admin-password': 'winnex_admin_2024' },
+      headers: { 'x-admin-password': password },
     })
     if (res.ok) {
       const data = await res.json()
@@ -33,7 +33,7 @@ export default function AdminContentPage() {
       setCounts(data.counts)
     }
     setLoading(false)
-  }, [])
+  }, [password])
 
   useEffect(() => {
     if (authenticated) {
@@ -41,9 +41,12 @@ export default function AdminContentPage() {
     }
   }, [authenticated, fetchContent])
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === 'winnex_admin_2024') {
+    const res = await fetch('/api/admin/content', {
+      headers: { 'x-admin-password': password },
+    })
+    if (res.ok) {
       setAuthenticated(true)
     } else {
       alert('Invalid password')
@@ -68,7 +71,7 @@ export default function AdminContentPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-password': 'winnex_admin_2024',
+          'x-admin-password': password,
         },
         body: JSON.stringify({
           content_type: 'tiktok_video',
@@ -104,7 +107,7 @@ export default function AdminContentPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'x-admin-password': 'winnex_admin_2024',
+          'x-admin-password': password,
         },
         body: JSON.stringify({ id: item.id }),
       })

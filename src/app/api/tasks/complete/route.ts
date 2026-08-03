@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
-
-const TIER_LIMITS: Record<number, { maxTasks: number; videoReward: number }> = {
-  1: { maxTasks: 5, videoReward: 100 },
-  2: { maxTasks: 8, videoReward: 200 },
-  3: { maxTasks: 10, videoReward: 300 },
-}
+import { TIER_CONFIGS } from '@/lib/types'
 
 export async function POST(request: Request) {
   const user = await getSessionUser(request)
@@ -24,7 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing task details' }, { status: 400 })
   }
 
-  const limits = TIER_LIMITS[user.tier] || TIER_LIMITS[1]
+  const limits = TIER_CONFIGS[user.tier] || TIER_CONFIGS[1]
   const admin = createAdminClient()
   const today = new Date().toISOString().split('T')[0]
 
