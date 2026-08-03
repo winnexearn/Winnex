@@ -62,9 +62,9 @@ export default function SettingsPage() {
         no_ref: 'Invalid payment reference.',
         unknown_ref: 'Payment record not found.',
         payment_failed: 'Payment failed. Please try again.',
-        payment_not_verified: 'Payment could not be verified. Please contact support.',
+        payment_not_verified: 'Payment could not be verified. Contact support at winnexearn@gmail.com.',
         upgrade_failed: 'Upgrade failed. Please try again.',
-        tier_update_failed: 'Tier update failed. Please contact support.',
+        tier_update_failed: 'Tier update failed. Contact support at winnexearn@gmail.com.',
         network_error: 'Network error. Please try again.',
         payment_misconfigured: 'Payment system not configured.',
       }
