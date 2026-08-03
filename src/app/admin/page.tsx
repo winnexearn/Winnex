@@ -166,6 +166,9 @@ export default function AdminPage() {
             <a href="/admin/withdrawals" className="p-4 bg-amber-50 rounded-xl hover:bg-amber-100 transition text-center">
               <div className="font-medium text-amber-700">Review Withdrawals</div>
             </a>
+            <a href="/admin/reviews" className="p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition text-center">
+              <div className="font-medium text-blue-700">Payment Reviews</div>
+            </a>
             <a href="/admin/content" className="p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition text-center">
               <div className="font-medium text-purple-700">Manage Content</div>
             </a>

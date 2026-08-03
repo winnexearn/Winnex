@@ -17,7 +17,7 @@ export default function SettingsPage() {
   const [accountNumber, setAccountNumber] = useState('')
   const [savingBank, setSavingBank] = useState(false)
   const [bankSuccess, setBankSuccess] = useState(false)
-  const [ref, setRef] = useState('')
+  const [selectedTier, setSelectedTier] = useState<number>(0)
   const [verifying, setVerifying] = useState(false)
 
   const fetchData = useCallback(async () => {
@@ -117,8 +117,8 @@ export default function SettingsPage() {
   }
 
   const handleManualVerify = async () => {
-    if (!ref.trim()) {
-      setErrorMsg('Please enter your payment reference.')
+    if (!selectedTier) {
+      setErrorMsg('Please select the tier you paid for.')
       setTimeout(() => setErrorMsg(''), 4000)
       return
     }
@@ -127,26 +127,26 @@ export default function SettingsPage() {
     setErrorMsg('')
 
     try {
-      const res = await fetch('/api/tiers/manual-verify', {
+      const res = await fetch('/api/tiers/request-verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transaction_id: ref.trim() }),
+        body: JSON.stringify({ to_tier: selectedTier }),
       })
 
       const data = await res.json()
 
       if (!res.ok) {
-        setErrorMsg(data.error || 'Verification failed.')
+        setErrorMsg(data.error || 'Verification request failed.')
         setTimeout(() => setErrorMsg(''), 5000)
         return
       }
 
       setSuccess(true)
-      setRef('')
+      setSelectedTier(0)
       await fetchData()
       setTimeout(() => setSuccess(false), 5000)
     } catch {
-      setErrorMsg('Error verifying payment. Please try again.')
+      setErrorMsg('Error submitting request. Please try again.')
       setTimeout(() => setErrorMsg(''), 4000)
     } finally {
       setVerifying(false)
@@ -237,23 +237,24 @@ export default function SettingsPage() {
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Paid but tier not updated?</h2>
         <p className="text-sm text-gray-600 mb-4">
-          If your payment was successful but your tier wasn&apos;t upgraded, enter your payment reference below.
-          You can find it on the SquadCo payment page or in the URL after payment.
+          Select the tier you paid for and submit. Our team will verify your payment and upgrade your account.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={ref}
-            onChange={(e) => setRef(e.target.value)}
-            placeholder="e.g. WINNEX-a1b2c3d4-1722678901"
+          <select
+            value={selectedTier}
+            onChange={(e) => setSelectedTier(Number(e.target.value))}
             className="flex-1 px-4 py-3 border border-amber-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-          />
+          >
+            <option value={0}>Select tier you paid for...</option>
+            {user?.tier === 1 && <option value={2}>Tier 2 — ₦1,000</option>}
+            {user?.tier !== 3 && <option value={3}>Tier 3 — ₦3,000</option>}
+          </select>
           <button
             onClick={handleManualVerify}
-            disabled={verifying}
+            disabled={verifying || !selectedTier}
             className="px-6 py-3 bg-amber-600 text-white rounded-xl font-semibold hover:bg-amber-700 transition disabled:opacity-50"
           >
-            {verifying ? 'Verifying...' : 'Verify Payment'}
+            {verifying ? 'Submitting...' : 'Submit for Review'}
           </button>
         </div>
       </div>
