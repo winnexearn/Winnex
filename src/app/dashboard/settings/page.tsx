@@ -13,11 +13,18 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false)
   const [processing, setProcessing] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [bankName, setBankName] = useState('')
+  const [accountNumber, setAccountNumber] = useState('')
+  const [savingBank, setSavingBank] = useState(false)
+  const [bankSuccess, setBankSuccess] = useState(false)
 
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/auth/me')
     if (res.ok) {
-      setUser(await res.json())
+      const me = await res.json()
+      setUser(me)
+      setBankName(me.bank_name || '')
+      setAccountNumber(me.account_number || '')
     }
     setLoading(false)
   }, [])
@@ -61,6 +68,47 @@ export default function SettingsPage() {
       setTimeout(() => setErrorMsg(''), 5000)
     }
   }, [searchParams, fetchData])
+
+  const handleSaveBank = async () => {
+    if (!bankName || !accountNumber) {
+      setErrorMsg('Bank name and account number are required.')
+      setTimeout(() => setErrorMsg(''), 4000)
+      return
+    }
+    if (!/^\d{10}$/.test(accountNumber)) {
+      setErrorMsg('Account number must be exactly 10 digits.')
+      setTimeout(() => setErrorMsg(''), 4000)
+      return
+    }
+
+    setSavingBank(true)
+    setErrorMsg('')
+
+    try {
+      const res = await fetch('/api/user/bank-details', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bank_name: bankName, account_number: accountNumber }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Failed to update bank details.')
+        setTimeout(() => setErrorMsg(''), 4000)
+        return
+      }
+
+      setBankSuccess(true)
+      await fetchData()
+      setTimeout(() => setBankSuccess(false), 3000)
+    } catch {
+      setErrorMsg('Error saving bank details. Please try again.')
+      setTimeout(() => setErrorMsg(''), 4000)
+    } finally {
+      setSavingBank(false)
+    }
+  }
 
   const handleUpgradeTier = async (newTier: number) => {
     if (!user) return
@@ -274,14 +322,61 @@ export default function SettingsPage() {
             <span className="text-gray-600">Phone Number</span>
             <span className="font-medium text-gray-900">{user?.phone_number}</span>
           </div>
-          <div className="flex justify-between py-3 border-b border-gray-100">
-            <span className="text-gray-600">Bank</span>
-            <span className="font-medium text-gray-900">{user?.bank_name}</span>
+        </div>
+      </div>
+
+      {/* Bank Details */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">Bank Details</h2>
+        <p className="text-sm text-gray-500 mb-4">Used for withdrawals. Withdrawals are processed on the 1st of every month.</p>
+
+        {bankSuccess && (
+          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm mb-4">
+            Bank details updated successfully!
           </div>
-          <div className="flex justify-between py-3">
-            <span className="text-gray-600">Account Number</span>
-            <span className="font-medium text-gray-900">{user?.account_number}</span>
+        )}
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+            <select
+              value={bankName}
+              onChange={(e) => setBankName(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="">Select your bank</option>
+              {[
+                'Access Bank', 'Citibank Nigeria', 'Ecobank Nigeria', 'Fidelity Bank',
+                'First Bank of Nigeria', 'First City Monument Bank', 'Globus Bank',
+                'Guaranty Trust Bank', 'Heritage Bank', 'Keystone Bank', 'Kuda Bank',
+                'Opay', 'Palmpay', 'Polaris Bank', 'Providus Bank', 'Stanbic IBTC Bank',
+                'Standard Chartered Bank', 'Sterling Bank', 'SunTrust Bank', 'Titan Trust Bank',
+                'Union Bank of Nigeria', 'United Bank for Africa', 'Unity Bank', 'VBank',
+                'Wema Bank', 'Zenith Bank',
+              ].map((bank) => (
+                <option key={bank} value={bank}>{bank}</option>
+              ))}
+            </select>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+            <input
+              type="text"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="e.g. 1234567890"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          <button
+            onClick={handleSaveBank}
+            disabled={savingBank}
+            className="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
+          >
+            {savingBank ? 'Saving...' : 'Save Bank Details'}
+          </button>
         </div>
       </div>
     </div>
