@@ -4,6 +4,11 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 const TIER_PRICES: Record<number, number> = { 1: 0, 2: 1000, 3: 3000 }
 
+const TIER_PAYMENT_LINKS: Record<number, string> = {
+  2: 'https://pay.squadco.com/winnextier2',
+  3: 'https://pay.squadco.com/winnextier3',
+}
+
 export async function POST(request: Request) {
   const user = await getSessionUser(request)
   if (!user) {
@@ -22,9 +27,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid tier upgrade' }, { status: 400 })
   }
 
-  const paymentLink = process.env.SQUAD_PAYMENT_LINK
+  const paymentLink = TIER_PAYMENT_LINKS[toTier]
   if (!paymentLink) {
-    return NextResponse.json({ error: 'Payment link not configured' }, { status: 500 })
+    return NextResponse.json({ error: 'Payment link not configured for this tier' }, { status: 500 })
   }
 
   const admin = createAdminClient()
