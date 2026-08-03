@@ -80,14 +80,14 @@ export interface TierConfig {
 export const TIER_CONFIGS: Record<number, TierConfig> = {
   1: {
     tier: 1,
-    maxTasks: 5,
-    videoReward: 100,
+    maxTasks: 10,
+    videoReward: 50,
     upgradePrice: 0,
   },
   2: {
     tier: 2,
-    maxTasks: 8,
-    videoReward: 200,
+    maxTasks: 10,
+    videoReward: 150,
     upgradePrice: 1000,
   },
   3: {

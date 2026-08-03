@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     await admin.from('referrals').insert({
       referrer_id: referredBy,
       referred_id: newUser.id,
-      reward_amount: 500,
+      reward_amount: 200,
       status: 'completed',
     })
 
@@ -98,8 +98,8 @@ export async function POST(request: Request) {
     await admin
       .from('users')
       .update({
-        balance: (referrerData?.balance || 0) + 500,
-        total_earned: (referrerData?.total_earned || 0) + 500,
+        balance: (referrerData?.balance || 0) + 200,
+        total_earned: (referrerData?.total_earned || 0) + 200,
       })
       .eq('id', referredBy)
   }

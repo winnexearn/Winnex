@@ -197,13 +197,13 @@ export default function Home() {
                   <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600">5 TikTok videos/day</span>
+                  <span className="text-gray-600">10 TikTok videos/day</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600">₦100 per video</span>
+                  <span className="text-gray-600">₦50 per video</span>
                 </li>
               </ul>
               <Link href="/register" className="block w-full py-3 text-center border-2 border-emerald-600 text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition">
@@ -224,13 +224,13 @@ export default function Home() {
                   <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600">8 TikTok videos/day</span>
+                  <span className="text-gray-600">10 TikTok videos/day</span>
                 </li>
                 <li className="flex items-center gap-3">
                   <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600 font-medium">₦200 per video</span>
+                  <span className="text-gray-600 font-medium">₦150 per video</span>
                 </li>
               </ul>
               <Link href="/register?tier=2" className="block w-full py-3 text-center bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition">
@@ -277,9 +277,9 @@ export default function Home() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
             <div className="relative grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Earn ₦500 Per Referral</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Earn ₦200 Per Referral</h2>
                 <p className="text-emerald-100 text-lg mb-6">
-                  Share your unique referral link with friends. When they sign up and start earning, you get ₦500 added to your balance instantly!
+                  Share your unique referral link with friends. When they sign up and start earning, you get ₦200 added to your balance instantly!
                 </p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-3">
@@ -292,7 +292,7 @@ export default function Home() {
                     <svg className="w-5 h-5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    <span>Instant ₦500 bonus per referral</span>
+                    <span>Instant ₦200 bonus per referral</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
@@ -304,7 +304,7 @@ export default function Home() {
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center">
                 <div className="text-6xl mb-4">🤝</div>
-                <div className="text-5xl font-bold mb-2">₦500</div>
+                <div className="text-5xl font-bold mb-2">₦200</div>
                 <div className="text-emerald-200 mb-6">per successful referral</div>
                 <Link href="/register" className="block bg-white text-emerald-700 py-3 rounded-xl font-bold hover:bg-emerald-50 transition">
                   Start Earning Now

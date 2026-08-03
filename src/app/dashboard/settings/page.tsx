@@ -238,7 +238,7 @@ export default function SettingsPage() {
                 <div>
                   <div className="text-amber-600 font-semibold">Tier 2 - Professional</div>
                   <div className="text-sm text-gray-600 mt-1">
-                    ₦200/video • 8 tasks/day
+                    ₦150/video • 10 tasks/day
                   </div>
                   <div className="text-sm mt-2">
                     <span className="font-bold text-emerald-600">+₦{dailyEarnings(2).toLocaleString()}/day</span>
