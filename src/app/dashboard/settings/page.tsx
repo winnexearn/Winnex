@@ -17,7 +17,7 @@ export default function SettingsPage() {
   const [accountNumber, setAccountNumber] = useState('')
   const [savingBank, setSavingBank] = useState(false)
   const [bankSuccess, setBankSuccess] = useState(false)
-  const [txnId, setTxnId] = useState('')
+  const [ref, setRef] = useState('')
   const [verifying, setVerifying] = useState(false)
 
   const fetchData = useCallback(async () => {
@@ -117,8 +117,8 @@ export default function SettingsPage() {
   }
 
   const handleManualVerify = async () => {
-    if (!txnId.trim()) {
-      setErrorMsg('Please enter your transaction ID.')
+    if (!ref.trim()) {
+      setErrorMsg('Please enter your payment reference.')
       setTimeout(() => setErrorMsg(''), 4000)
       return
     }
@@ -130,7 +130,7 @@ export default function SettingsPage() {
       const res = await fetch('/api/tiers/manual-verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transaction_id: txnId.trim() }),
+        body: JSON.stringify({ transaction_id: ref.trim() }),
       })
 
       const data = await res.json()
@@ -142,7 +142,7 @@ export default function SettingsPage() {
       }
 
       setSuccess(true)
-      setTxnId('')
+      setRef('')
       await fetchData()
       setTimeout(() => setSuccess(false), 5000)
     } catch {
@@ -237,15 +237,15 @@ export default function SettingsPage() {
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Paid but tier not updated?</h2>
         <p className="text-sm text-gray-600 mb-4">
-          If your payment was successful but your tier wasn&apos;t upgraded, enter your SquadCo transaction ID below.
-          You can find it in your SquadCo payment receipt or email.
+          If your payment was successful but your tier wasn&apos;t upgraded, enter your payment reference below.
+          You can find it on the SquadCo payment page or in the URL after payment.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="text"
-            value={txnId}
-            onChange={(e) => setTxnId(e.target.value)}
-            placeholder="e.g. SQWINN6392135579667800029"
+            value={ref}
+            onChange={(e) => setRef(e.target.value)}
+            placeholder="e.g. WINNEX-a1b2c3d4-1722678901"
             className="flex-1 px-4 py-3 border border-amber-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
           />
           <button

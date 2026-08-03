@@ -10,17 +10,17 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json().catch(() => null)
   if (!body?.transaction_id) {
-    return NextResponse.json({ error: 'Transaction ID required' }, { status: 400 })
+    return NextResponse.json({ error: 'Reference required' }, { status: 400 })
   }
 
-  const transactionId = body.transaction_id.trim()
+  const reference = body.transaction_id.trim()
   const admin = createAdminClient()
 
   // Check if this transaction was already used
   const { data: existing } = await admin
     .from('tier_upgrades')
     .select('id, payment_status')
-    .eq('squad_ref', transactionId)
+    .eq('squad_ref', reference)
     .maybeSingle()
 
   if (existing && existing.payment_status === 'completed') {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
   // Mark as completed and upgrade tier
   await admin
     .from('tier_upgrades')
-    .update({ payment_status: 'completed', squad_ref: transactionId })
+    .update({ payment_status: 'completed', squad_ref: reference })
     .eq('id', pending.id)
 
   await admin
