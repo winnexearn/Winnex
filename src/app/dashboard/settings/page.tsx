@@ -235,9 +235,10 @@ export default function SettingsPage() {
 
       {/* Manual Payment Verification */}
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Paid but tier not updated?</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">Verify Payment</h2>
         <p className="text-sm text-gray-600 mb-4">
-          Select the tier you paid for and submit. Our team will verify your payment and upgrade your account.
+          If your payment was successful but your tier wasn&apos;t upgraded, select the tier you paid for and submit.
+          Our team will verify your payment and upgrade your account. Verification can take up to 30 minutes.
         </p>
         <div className="flex flex-col sm:flex-row gap-3">
           <select

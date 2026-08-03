@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { User, Task, TIER_CONFIGS } from '@/lib/types'
 import { formatNaira, formatDate } from '@/lib/utils'
 
@@ -82,6 +83,11 @@ export default function Dashboard() {
           <div className="text-xl font-bold text-gray-900">{formatNaira(user?.total_earned || 0)}</div>
         </div>
       </div>
+
+      <Link href="/dashboard/settings" className="block bg-amber-50 border border-amber-200 rounded-xl p-4 text-center hover:bg-amber-100 transition">
+        <span className="text-amber-700 font-medium">Verify Payment</span>
+        <span className="text-amber-600 text-sm ml-2">— Paid but tier not updated?</span>
+      </Link>
 
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
