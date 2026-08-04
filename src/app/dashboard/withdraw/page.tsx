@@ -97,7 +97,7 @@ export default function WithdrawPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-500 to-orange-600 rounded-2xl p-6 text-white">
+      <div className="bg-amber-500 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Withdraw Earnings</h1>
         <p className="text-amber-100">Cash out your earnings to your bank account on the 1st of every month</p>
       </div>

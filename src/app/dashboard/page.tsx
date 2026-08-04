@@ -53,13 +53,15 @@ export default function Dashboard() {
   const nextTier = user?.tier === 1 ? 2 : user?.tier === 2 ? 3 : null
 
   return (
-    <div className="space-y-6 relative">
-      <a href="https://stake.com" target="_blank" rel="noopener noreferrer" className="absolute top-0 right-0">
-        <img src="/stake-logo.png" alt="Stake.com" className="h-6 opacity-60 hover:opacity-100 transition" />
-      </a>
-      <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.full_name?.split(' ')[0]}!</h1>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.full_name?.split(' ')[0]}!</h1>
+        <a href="https://stake.com" target="_blank" rel="noopener noreferrer">
+          <img src="/stake-logo.png" alt="Stake.com" className="h-5 opacity-50 hover:opacity-100 transition" />
+        </a>
+      </div>
 
-      <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
+      <div className="bg-emerald-600 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-emerald-100 text-sm">Your Balance</p>

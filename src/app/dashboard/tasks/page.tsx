@@ -83,9 +83,10 @@ export default function TasksPage() {
         return
       }
 
-      window.open(currentTask.url, '_blank')
       showToast(`+${formatNaira(data.reward)} earned! Keep going.`)
       await fetchData()
+
+      window.location.href = currentTask.url
     } catch (err) {
       console.error('Error completing task:', err)
       showToast('Error completing task. Please try again.')
@@ -120,7 +121,7 @@ export default function TasksPage() {
       )}
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
+      <div className="bg-emerald-600 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Complete Tasks & Earn</h1>
         <p className="text-emerald-100">
           Tap the button, it opens on TikTok, and your reward is credited instantly.

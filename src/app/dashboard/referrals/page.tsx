@@ -53,7 +53,7 @@ export default function ReferralsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl p-6 text-white">
+      <div className="bg-purple-600 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Referral Program</h1>
         <p className="text-purple-100">Invite friends and earn ₦100 for each referral</p>
       </div>
