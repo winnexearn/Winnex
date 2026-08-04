@@ -84,6 +84,19 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Stake Partnership Banner */}
+      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 text-center">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <span className="text-white font-bold">Stake.com</span>
+        </div>
+        <p className="text-gray-400 text-sm">In partnership with <span className="text-white">Stake.com</span> — the world&apos;s leading betting platform</p>
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Today&apos;s Progress</h2>

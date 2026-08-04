@@ -157,8 +157,8 @@ export default function Home() {
             </div>
             <span className="text-white text-2xl font-bold">Stake</span>
           </div>
-          <p className="text-gray-300 text-lg mb-2">We partner with <span className="text-white font-semibold">Stake</span> — Africa&apos;s leading betting platform</p>
-          <p className="text-gray-400">Trusted by millions. Fast payouts, secure platform, and unbeatable odds.</p>
+          <p className="text-gray-300 text-lg mb-2">We partner with <span className="text-white font-semibold">Stake.com</span> — the world&apos;s leading betting platform</p>
+          <p className="text-gray-400">Trusted by millions worldwide. Fast payouts, secure platform, and unbeatable odds.</p>
         </div>
       </section>
 
@@ -419,7 +419,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p className="mb-2">In partnership with <span className="text-white font-semibold">Stake</span></p>
+            <p className="mb-2">In partnership with <span className="text-white font-semibold">Stake.com</span></p>
             <p>&copy; {new Date().getFullYear()} Winnex Earn. All rights reserved.</p>
           </div>
         </div>
