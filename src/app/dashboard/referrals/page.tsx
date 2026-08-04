@@ -118,8 +118,8 @@ export default function ReferralsPage() {
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold shrink-0">3</div>
             <div>
-              <div className="font-medium text-gray-900">Earn ₦200</div>
-              <div className="text-sm text-gray-600">Get ₦200 added to your balance instantly</div>
+              <div className="font-medium text-gray-900">Earn ₦100</div>
+              <div className="text-sm text-gray-600">Get ₦100 added to your balance instantly</div>
             </div>
           </div>
         </div>

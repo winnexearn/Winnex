@@ -46,7 +46,6 @@ export default function Home() {
             
             <div className="hidden md:flex items-center gap-8">
               <a href="#how-it-works" className="text-gray-600 hover:text-emerald-600 transition">How it Works</a>
-              <a href="#tiers" className="text-gray-600 hover:text-emerald-600 transition">Tiers</a>
               <a href="#referral" className="text-gray-600 hover:text-emerald-600 transition">Referral</a>
               <Link href="/login" className="text-emerald-600 font-medium hover:text-emerald-700 transition">Login</Link>
               <Link href="/register" className="bg-emerald-600 text-white px-5 py-2 rounded-full font-medium hover:bg-emerald-700 transition">
@@ -190,96 +189,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Tiers Section */}
-      <section id="tiers" className="py-20 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Choose Your Earning Power</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Higher tiers unlock more tasks and bigger rewards. Start free and upgrade when you&apos;re ready.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Free Tier */}
-            <div className="bg-white rounded-3xl p-8 shadow-lg border-2 border-gray-100 hover:border-emerald-200 transition">
-              <div className="text-emerald-600 font-medium mb-2">FREE</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Starter</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">₦0<span className="text-lg text-gray-500 font-normal">/forever</span></div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-600">5 TikTok videos/day</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-600">₦50 per video</span>
-                </li>
-              </ul>
-              <Link href="/register" className="block w-full py-3 text-center border-2 border-emerald-600 text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition">
-                Start Free
-              </Link>
-            </div>
-
-            {/* Tier 2 */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-amber-400 relative transform scale-105">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-white px-4 py-1 rounded-full text-sm font-medium">
-                Most Popular
-              </div>
-              <div className="text-amber-600 font-medium mb-2">TIER 2</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Professional</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-6">₦1,000<span className="text-lg text-gray-500 font-normal">/one-time</span></div>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-600">7 TikTok videos/day</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-gray-600 font-medium">₦150 per video</span>
-                </li>
-              </ul>
-              <Link href="/register?tier=2" className="block w-full py-3 text-center bg-amber-500 text-white rounded-xl font-semibold hover:bg-amber-600 transition">
-                Unlock Tier 2
-              </Link>
-            </div>
-
-            {/* Tier 3 */}
-            <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-3xl p-8 shadow-xl text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-              <div className="relative">
-                <div className="text-purple-200 font-medium mb-2">TIER 3</div>
-                <h3 className="text-2xl font-bold mb-4">Legend</h3>
-                <div className="text-4xl font-bold mb-6">₦3,000<span className="text-lg text-purple-200 font-normal">/one-time</span></div>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-purple-100">10 TikTok videos/day</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <svg className="w-5 h-5 text-purple-300" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-white font-medium">₦300 per video</span>
-                  </li>
-                </ul>
-                <Link href="/register?tier=3" className="block w-full py-3 text-center bg-white text-purple-700 rounded-xl font-semibold hover:bg-purple-50 transition">
-                  Unlock Legend
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Referral Section */}
       <section id="referral" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
@@ -288,7 +197,7 @@ export default function Home() {
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
             <div className="relative grid md:grid-cols-2 gap-8 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold mb-4">Earn ₦200 Per Referral</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4">Earn ₦100 Per Referral</h2>
                 <p className="text-emerald-100 text-lg mb-6">
                   Share your unique referral link with friends. When they sign up and start earning, you get ₦100 added to your balance instantly!
                 </p>
@@ -315,7 +224,7 @@ export default function Home() {
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center">
                 <div className="text-6xl mb-4">🤝</div>
-                <div className="text-5xl font-bold mb-2">₦200</div>
+                <div className="text-5xl font-bold mb-2">₦100</div>
                 <div className="text-emerald-200 mb-6">per successful referral</div>
                 <Link href="/register" className="block bg-white text-emerald-700 py-3 rounded-xl font-bold hover:bg-emerald-50 transition">
                   Start Earning Now
