@@ -53,7 +53,10 @@ export default function Dashboard() {
   const nextTier = user?.tier === 1 ? 2 : user?.tier === 2 ? 3 : null
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      <a href="https://stake.com" target="_blank" rel="noopener noreferrer" className="absolute top-0 right-0">
+        <img src="/stake-logo.png" alt="Stake.com" className="h-6 opacity-60 hover:opacity-100 transition" />
+      </a>
       <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.full_name?.split(' ')[0]}!</h1>
 
       <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 rounded-2xl p-6 text-white">
@@ -82,12 +85,6 @@ export default function Dashboard() {
           <div className="text-sm text-gray-500 mb-1">Total Earned</div>
           <div className="text-xl font-bold text-gray-900">{formatNaira(user?.total_earned || 0)}</div>
         </div>
-      </div>
-
-      {/* Stake Partnership Banner */}
-      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 text-center">
-        <img src="/stake-logo.png" alt="Stake.com" className="h-8 mx-auto mb-2" />
-        <p className="text-gray-400 text-sm">In partnership with <a href="https://stake.com" target="_blank" rel="noopener noreferrer" className="text-white hover:underline">Stake.com</a> — the world&apos;s leading betting platform</p>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
