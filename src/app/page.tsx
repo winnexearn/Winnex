@@ -146,6 +146,22 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Stake Partnership Banner */}
+      <section className="py-12 px-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+              <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+            </div>
+            <span className="text-white text-2xl font-bold">Stake</span>
+          </div>
+          <p className="text-gray-300 text-lg mb-2">We partner with <span className="text-white font-semibold">Stake</span> — Africa&apos;s leading betting platform</p>
+          <p className="text-gray-400">Trusted by millions. Fast payouts, secure platform, and unbeatable odds.</p>
+        </div>
+      </section>
+
       {/* How it Works */}
       <section id="how-it-works" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
@@ -403,6 +419,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
+            <p className="mb-2">In partnership with <span className="text-white font-semibold">Stake</span></p>
             <p>&copy; {new Date().getFullYear()} Winnex Earn. All rights reserved.</p>
           </div>
         </div>
