@@ -98,8 +98,8 @@ export async function POST(request: Request) {
     await admin
       .from('users')
       .update({
-        balance: (referrerData?.balance || 0) + 200,
-        total_earned: (referrerData?.total_earned || 0) + 200,
+        balance: (referrerData?.balance || 0) + 100,
+        total_earned: (referrerData?.total_earned || 0) + 100,
       })
       .eq('id', referredBy)
   }

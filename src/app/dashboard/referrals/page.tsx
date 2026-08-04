@@ -55,7 +55,7 @@ export default function ReferralsPage() {
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-700 rounded-2xl p-6 text-white">
         <h1 className="text-2xl font-bold mb-2">Referral Program</h1>
-        <p className="text-purple-100">Invite friends and earn ₦200 for each referral</p>
+        <p className="text-purple-100">Invite friends and earn ₦100 for each referral</p>
       </div>
 
       {/* Stats Cards */}
@@ -93,7 +93,7 @@ export default function ReferralsPage() {
           </button>
         </div>
         <p className="mt-4 text-sm text-gray-500">
-          Share this link with friends. When they sign up, you&apos;ll earn ₦200 for each referral!
+          Share this link with friends. When they sign up, you&apos;ll earn ₦100 for each referral!
         </p>
       </div>
 

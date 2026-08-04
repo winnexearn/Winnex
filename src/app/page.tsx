@@ -279,7 +279,7 @@ export default function Home() {
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">Earn ₦200 Per Referral</h2>
                 <p className="text-emerald-100 text-lg mb-6">
-                  Share your unique referral link with friends. When they sign up and start earning, you get ₦200 added to your balance instantly!
+                  Share your unique referral link with friends. When they sign up and start earning, you get ₦100 added to your balance instantly!
                 </p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center gap-3">
@@ -292,7 +292,7 @@ export default function Home() {
                     <svg className="w-5 h-5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
-                    <span>Instant ₦200 bonus per referral</span>
+                    <span>Instant ₦100 bonus per referral</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
