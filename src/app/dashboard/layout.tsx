@@ -100,13 +100,8 @@ export default function DashboardLayout({
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-          <div className="flex items-center gap-2 px-4 py-2 mb-2">
-            <div className="w-6 h-6 bg-blue-600 rounded-md flex items-center justify-center">
-              <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <span className="text-xs text-gray-400">In partnership with <span className="text-gray-600 font-medium">Stake.com</span></span>
+          <div className="flex items-center justify-center gap-2 px-4 py-2 mb-2">
+            <img src="/stake-logo.png" alt="Stake.com" className="h-5" />
           </div>
           <button
             onClick={handleLogout}
