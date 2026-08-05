@@ -229,8 +229,225 @@ function ReviewsTab({ password }: { password: string }) {
             </div>
           </div>
         </div>
-      ))}
+      </div>
+
+      {tab === 'users' && <UsersTab password={password} />}
     </div>
+  )
+}
+
+function UsersTab({ password }: { password: string }) {
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
+  const [downgradingId, setDowngradingId] = useState<string | null>(null)
+  const [selectedTier, setSelectedTier] = useState<{ userId: string; newTier: number } | null>(null)
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: '50' })
+      if (search) params.set('search', search)
+      const res = await fetch(`/api/admin/users?${params}`, {
+        headers: { 'x-admin-password': password },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setUsers(data.users)
+        setTotalPages(data.totalPages)
+        setTotal(data.total)
+      }
+    } catch (err) {
+      console.error('Fetch users error:', err)
+    }
+    setLoading(false)
+  }, [password, page, search])
+
+  useEffect(() => { fetchUsers() }, [fetchUsers])
+
+  const handleDowngrade = async () => {
+    if (!selectedTier) return
+
+    setDowngradingId(selectedTier.userId)
+    try {
+      const res = await fetch('/api/admin/users/downgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
+        body: JSON.stringify({
+          userId: selectedTier.userId,
+          newTier: selectedTier.newTier,
+          fromTier: users.find(u => u.id === selectedTier.userId)?.tier,
+          reason: 'downgraded by admin'
+        }),
+      })
+
+      if (res.ok) {
+        showToast('User tier downgraded successfully', 'success')
+        await fetchUsers()
+      } else {
+        const data = await res.json()
+        showToast(data.error || 'Failed to downgrade user', 'error')
+      }
+    } catch (err) {
+      console.error('Error:', err)
+      showToast('Error downgrading user', 'error')
+    } finally {
+      setDowngradingId(null)
+      setSelectedTier(null)
+    }
+  }
+
+  const getAvailableTiers = (currentTier: number) => {
+    const tiers: { value: number; label: string; color: string }[] = [
+      { value: 1, label: 'Tier 1 (Starter)', color: 'bg-gray-100 text-gray-700' },
+      { value: 2, label: 'Tier 2 (Professional)', color: 'bg-amber-100 text-amber-700' },
+      { value: 3, label: 'Tier 3 (Legend)', color: 'bg-purple-100 text-purple-700' },
+    ]
+    return tiers.filter(tier => tier.value < currentTier)
+  }
+
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <p className="text-gray-600">{total} registered users</p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Search name or email..."
+            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none w-64"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+          />
+          <button
+            onClick={fetchUsers}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">Email</th>
+                    <th className="text-center px-4 py-3 font-medium text-gray-600">Tier</th>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">Balance</th>
+                    <th className="text-center px-4 py-3 font-medium text-gray-600">Tasks Today</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">Joined</th>
+                    <th className="text-center px-4 py-3 font-medium text-gray-600">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50 transition">
+                      <td className="px-4 py-3 font-medium text-gray-900">{user.full_name || '—'}</td>
+                      <td className="px-4 py-3 text-gray-600">{user.email}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          user.tier === 3 ? 'bg-purple-100 text-purple-700' :
+                          user.tier === 2 ? 'bg-amber-100 text-amber-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          Tier {user.tier}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-gray-900">
+                        ₦{user.balance.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3 text-center text-gray-600">{user.tasks_completed_today}</td>
+                      <td className="px-4 py-3 text-gray-600">
+                        {new Date(user.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {user.tier > 1 ? (
+                          <select
+                            onChange={(e) => setSelectedTier({ userId: user.id, newTier: parseInt(e.target.value) })}
+                            value={selectedTier?.userId === user.id ? selectedTier.newTier : ''}
+                            className="text-xs px-2 py-1 border border-gray-300 rounded focus:ring-1 focus:ring-emerald-500"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <option value="">Downgrade to...</option>
+                            {getAvailableTiers(user.tier).map((tier) => (
+                              <option key={tier.value} value={tier.value}>{tier.label}</option>
+                            ))}
+                          </select>
+                        ) : (
+                          <span className="text-xs text-gray-400">Already Tier 1</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {users.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-12 text-center text-gray-500">No users found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 hover:bg-gray-100 transition"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 hover:bg-gray-100 transition"
+              >
+                Next
+              </button>
+            </div>
+          )}
+
+          {selectedTier && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirm Downgrade</h3>
+                <p className="text-gray-600 mb-4">
+                  User will be downgraded from Tier {users.find(u => u.id === selectedTier.userId)?.tier} to Tier {selectedTier.newTier}
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setSelectedTier(null)}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-900 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDowngrade}
+                    disabled={downgradingId === selectedTier.userId}
+                    className="px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition disabled:opacity-50"
+                  >
+                    {downgradingId === selectedTier.userId ? 'Downgrading...' : 'Confirm Downgrade'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </>
   )
 }
 
