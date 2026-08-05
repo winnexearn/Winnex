@@ -131,6 +131,14 @@ function ReviewsTab({ password }: { password: string }) {
 
   useEffect(() => { fetchRequests() }, [fetchRequests])
 
+  const showToast = (message: string, type?: 'success' | 'error') => {
+    const toast = document.createElement('div')
+    toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium ${type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`
+    toast.textContent = message
+    document.body.appendChild(toast)
+    setTimeout(() => document.body.removeChild(toast), 4000)
+  }
+
   const handleApprove = async (request: ReviewRequest) => {
     if (!confirm(`Approve ${request.user?.email} for Tier ${request.to_tier}?`)) return
     setProcessing(request.id)
@@ -229,9 +237,7 @@ function ReviewsTab({ password }: { password: string }) {
             </div>
           </div>
         </div>
-      </div>
-
-      {tab === 'users' && <UsersTab password={password} />}
+      ))}
     </div>
   )
 }
@@ -267,6 +273,14 @@ function UsersTab({ password }: { password: string }) {
   }, [password, page, search])
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
+
+  const showToast = (message: string, type?: 'success' | 'error') => {
+    const toast = document.createElement('div')
+    toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium ${type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`
+    toast.textContent = message
+    document.body.appendChild(toast)
+    setTimeout(() => document.body.removeChild(toast), 4000)
+  }
 
   const handleDowngrade = async () => {
     if (!selectedTier) return
@@ -443,134 +457,6 @@ function UsersTab({ password }: { password: string }) {
                   </button>
                 </div>
               </div>
-            </div>
-          )}
-        </>
-      )}
-    </>
-  )
-}
-
-function UsersTab({ password }: { password: string }) {
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [total, setTotal] = useState(0)
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({ page: String(page), limit: '50' })
-      if (search) params.set('search', search)
-      const res = await fetch(`/api/admin/users?${params}`, {
-        headers: { 'x-admin-password': password },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setUsers(data.users)
-        setTotalPages(data.totalPages)
-        setTotal(data.total)
-      }
-    } catch (err) {
-      console.error('Fetch users error:', err)
-    }
-    setLoading(false)
-  }, [password, page, search])
-
-  useEffect(() => { fetchUsers() }, [fetchUsers])
-
-  return (
-    <>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <p className="text-gray-600">{total} registered users</p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search name or email..."
-            className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none w-64"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-          />
-          <button
-            onClick={fetchUsers}
-            className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition"
-          >
-            Search
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        <>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Email</th>
-                    <th className="text-center px-4 py-3 font-medium text-gray-600">Tier</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">Balance</th>
-                    <th className="text-center px-4 py-3 font-medium text-gray-600">Tasks Today</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Joined</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition">
-                      <td className="px-4 py-3 font-medium text-gray-900">{user.full_name || '—'}</td>
-                      <td className="px-4 py-3 text-gray-600">{user.email}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          user.tier === 3 ? 'bg-purple-100 text-purple-700' :
-                          user.tier === 2 ? 'bg-amber-100 text-amber-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
-                          Tier {user.tier}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-right font-medium text-gray-900">
-                        ₦{user.balance.toLocaleString()}
-                      </td>
-                      <td className="px-4 py-3 text-center text-gray-600">{user.tasks_completed_today}</td>
-                      <td className="px-4 py-3 text-gray-600">
-                        {new Date(user.created_at).toLocaleDateString('en-NG', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </td>
-                    </tr>
-                  ))}
-                  {users.length === 0 && (
-                    <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center text-gray-500">No users found</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 hover:bg-gray-100 transition"
-              >
-                Previous
-              </button>
-              <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="px-4 py-2 rounded-xl border border-gray-300 text-sm font-medium disabled:opacity-40 hover:bg-gray-100 transition"
-              >
-                Next
-              </button>
             </div>
           )}
         </>
