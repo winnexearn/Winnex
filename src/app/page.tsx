@@ -84,6 +84,14 @@ export default function Home() {
         )}
       </nav>
 
+      {/* Promo Banner */}
+      <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-4 text-center mt-16">
+        <p className="font-semibold">
+          <span className="bg-white/20 px-2 py-0.5 rounded text-sm mr-2">LIMITED TIME</span>
+          Sign up between Aug 7-14 and get <span className="font-bold text-lg">₦1,000 FREE</span> added to your balance!
+        </p>
+      </div>
+
       {/* Hero Section */}
       <section className="pt-24 pb-16 px-4 gradient-bg relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"></div>

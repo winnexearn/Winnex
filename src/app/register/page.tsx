@@ -27,6 +27,7 @@ function RegisterForm() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [promoMessage, setPromoMessage] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,7 +72,12 @@ function RegisterForm() {
         throw new Error(data.error || 'An error occurred')
       }
 
-      router.push('/dashboard')
+      if (data.promo) {
+        setPromoMessage(data.promo.message)
+        setTimeout(() => router.push('/dashboard'), 2000)
+      } else {
+        router.push('/dashboard')
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -94,9 +100,20 @@ function RegisterForm() {
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Create Your Account</h1>
           <p className="text-gray-600 mt-2">Start earning money today</p>
+          <div className="mt-3 inline-block bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1.5 rounded-full text-sm font-semibold">
+            Sign up now & get ₦1,000 FREE!
+          </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+          {promoMessage && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg text-center">
+              <div className="text-3xl mb-2">🎉</div>
+              <div className="font-bold text-amber-700 text-lg">{promoMessage}</div>
+              <div className="text-amber-600 text-sm mt-1">Redirecting to dashboard...</div>
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}

@@ -81,11 +81,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  const now = new Date()
+  const signupDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const promoStart = new Date(2026, 7, 7) // August 7, 2026
+  const promoEnd = new Date(2026, 7, 14, 23, 59, 59) // August 14, 2026
+
+  let promoBonus = 0
+  if (signupDate >= promoStart && signupDate <= promoEnd) {
+    promoBonus = 1000
+  }
+
+  if (promoBonus > 0) {
+    await admin
+      .from('users')
+      .update({
+        balance: promoBonus,
+        total_earned: promoBonus,
+      })
+      .eq('id', newUser.id)
+  }
+
   if (referredBy) {
     await admin.from('referrals').insert({
       referrer_id: referredBy,
       referred_id: newUser.id,
-      reward_amount: 200,
+      reward_amount: 100,
       status: 'completed',
     })
 
@@ -105,7 +125,10 @@ export async function POST(request: Request) {
   }
 
   const token = await createSessionToken(newUser.id)
-  const response = NextResponse.json({ user: sanitizeUser(newUser) }, { status: 201 })
+  const response = NextResponse.json({
+    user: sanitizeUser(newUser),
+    promo: promoBonus > 0 ? { amount: promoBonus, message: 'You received ₦1,000 signup bonus!' } : null
+  }, { status: 201 })
   setSessionCookie(response, token)
   return response
 }
