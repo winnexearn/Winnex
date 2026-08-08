@@ -8,12 +8,39 @@ import { formatNaira } from '@/lib/utils'
 export default function TiersPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
 
   const fetchUser = useCallback(async () => {
     const res = await fetch('/api/auth/me')
     if (res.ok) setUser(await res.json())
     setLoading(false)
   }, [])
+
+  const handleUpgrade = async (toTier: number) => {
+    if (!user) return
+    const tierConfig = TIER_CONFIGS[toTier]
+    if (!confirm(`Upgrade to Tier ${toTier} for ${formatNaira(tierConfig.upgradePrice)}?`)) return
+    setSaving(true)
+    try {
+      const res = await fetch('/api/tiers/upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to_tier: toTier }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || 'Error initiating payment.')
+        return
+      }
+      if (data.checkout_url) {
+        window.location.href = data.checkout_url
+      }
+    } catch {
+      alert('Error initiating payment.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   useEffect(() => { fetchUser() }, [fetchUser])
 
@@ -112,16 +139,17 @@ export default function TiersPage() {
                       <span className="font-bold">{formatNaira(monthlyEarnings(t as 2 | 3))}</span>
                     </div>
                   </div>
-                  <Link
-                    href={`/dashboard/tiers/upgrade?to=${t}`}
-                    className={`block w-full py-3 text-center rounded-xl font-semibold transition ${
+                  <button
+                    onClick={() => handleUpgrade(t)}
+                    disabled={saving}
+                    className={`block w-full py-3 text-center rounded-xl font-semibold transition disabled:opacity-50 ${
                       t === 2
                         ? 'bg-amber-500 text-white hover:bg-amber-600'
                         : 'bg-purple-600 text-white hover:bg-purple-700'
                     }`}
                   >
-                    Upgrade to Tier {t}
-                  </Link>
+                    {saving ? 'Processing...' : `Upgrade to Tier ${t}`}
+                  </button>
                 </div>
               )
             })}
