@@ -17,8 +17,7 @@ export default function SettingsPage() {
   const [accountNumber, setAccountNumber] = useState('')
   const [savingBank, setSavingBank] = useState(false)
   const [bankSuccess, setBankSuccess] = useState(false)
-  const [selectedTier, setSelectedTier] = useState<number>(0)
-  const [verifying, setVerifying] = useState(false)
+
 
   const fetchData = useCallback(async () => {
     const res = await fetch('/api/auth/me')
@@ -101,38 +100,6 @@ export default function SettingsPage() {
       setTimeout(() => setErrorMsg(''), 4000)
     } finally {
       setSavingBank(false)
-    }
-  }
-
-  const handleManualVerify = async () => {
-    if (!selectedTier) {
-      setErrorMsg('Please select the tier you paid for.')
-      setTimeout(() => setErrorMsg(''), 4000)
-      return
-    }
-    setVerifying(true)
-    setErrorMsg('')
-    try {
-      const res = await fetch('/api/tiers/request-verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to_tier: selectedTier }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setErrorMsg(data.error || 'Verification request failed.')
-        setTimeout(() => setErrorMsg(''), 5000)
-        return
-      }
-      setSuccess(true)
-      setSelectedTier(0)
-      await fetchData()
-      setTimeout(() => setSuccess(false), 5000)
-    } catch {
-      setErrorMsg('Error submitting request. Please try again.')
-      setTimeout(() => setErrorMsg(''), 4000)
-    } finally {
-      setVerifying(false)
     }
   }
 
@@ -292,33 +259,7 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* 3. Verify Payment */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Verify Payment</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Already paid but your tier wasn&apos;t upgraded? Select the tier you paid for and submit for review.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <select
-            value={selectedTier}
-            onChange={(e) => setSelectedTier(Number(e.target.value))}
-            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-          >
-            <option value={0}>Select tier you paid for...</option>
-            {user?.tier === 1 && <option value={2}>Tier 2 — ₦1,000</option>}
-            {user?.tier !== 3 && <option value={3}>Tier 3 — ₦3,000</option>}
-          </select>
-          <button
-            onClick={handleManualVerify}
-            disabled={verifying || !selectedTier}
-            className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
-          >
-            {verifying ? 'Submitting...' : 'Submit for Review'}
-          </button>
-        </div>
-      </div>
-
-      {/* 4. Account Info */}
+      {/* 3. Account Info */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h2>
         <div className="space-y-3">
@@ -337,7 +278,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* 5. Bank Details */}
+      {/* 4. Bank Details */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-lg font-semibold text-gray-900 mb-1">Bank Details</h2>
         <p className="text-sm text-gray-500 mb-4">For withdrawals. Processed on the 1st of every month.</p>

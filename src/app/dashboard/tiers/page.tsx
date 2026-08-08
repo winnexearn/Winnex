@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Link from 'next/link'
 import { User, TIER_CONFIGS } from '@/lib/types'
 import { formatNaira } from '@/lib/utils'
 
@@ -198,13 +197,7 @@ export default function TiersPage() {
         </div>
       </div>
 
-      {/* Verify Payment */}
-      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-center">
-        <p className="text-amber-800 font-medium mb-2">Already paid but tier not updated?</p>
-        <Link href="/dashboard/settings" className="text-amber-600 font-semibold hover:underline">
-          Verify Payment →
-        </Link>
-      </div>
+
     </div>
   )
 }

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+const SQUAD_API = 'https://api.squadco.com'
+
 export async function GET(request: NextRequest) {
   const user = await getSessionUser(request)
   if (!user) {
@@ -10,7 +12,6 @@ export async function GET(request: NextRequest) {
 
   const admin = createAdminClient()
 
-  // Find any pending upgrades for this user
   const { data: pending } = await admin
     .from('tier_upgrades')
     .select('*')
@@ -20,40 +21,50 @@ export async function GET(request: NextRequest) {
     .limit(1)
     .maybeSingle()
 
-  if (pending) {
-    // Auto-expire if older than 30 minutes
-    const createdAt = new Date(pending.created_at).getTime()
-    const thirtyMinAgo = Date.now() - 30 * 60 * 1000
-
-    if (createdAt < thirtyMinAgo) {
-      await admin
-        .from('tier_upgrades')
-        .update({ payment_status: 'expired' })
-        .eq('id', pending.id)
-
-      return NextResponse.redirect(
-        new URL('/dashboard/settings?upgrade=expired', request.url)
-      )
-    }
-
-    // Still within 30 min — mark as completed (webhook may have failed)
-    await admin
-      .from('tier_upgrades')
-      .update({ payment_status: 'completed' })
-      .eq('id', pending.id)
-
-    await admin
-      .from('users')
-      .update({ tier: pending.to_tier })
-      .eq('id', user.id)
-
-    return NextResponse.redirect(
-      new URL('/dashboard/settings?upgrade=success', request.url)
-    )
+  if (!pending) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // No pending upgrade found — just go to settings
-  return NextResponse.redirect(
-    new URL('/dashboard/settings', request.url)
-  )
+  const createdAt = new Date(pending.created_at).getTime()
+  const thirtyMinAgo = Date.now() - 30 * 60 * 1000
+
+  if (createdAt < thirtyMinAgo) {
+    await admin
+      .from('tier_upgrades')
+      .update({ payment_status: 'expired' })
+      .eq('id', pending.id)
+
+    return NextResponse.redirect(new URL('/dashboard?upgrade=expired', request.url))
+  }
+
+  const secretKey = process.env.SQUAD_SECRET_KEY
+  if (!secretKey) {
+    return NextResponse.redirect(new URL('/dashboard?error=payment_misconfigured', request.url))
+  }
+
+  try {
+    const squadRes = await fetch(`${SQUAD_API}/transaction/verify/${pending.squad_ref}`, {
+      headers: { 'Authorization': `Bearer ${secretKey}` },
+    })
+
+    const squadData = await squadRes.json()
+
+    if (squadRes.ok && squadData.data?.transaction_status === 'Success') {
+      await admin
+        .from('tier_upgrades')
+        .update({ payment_status: 'completed' })
+        .eq('id', pending.id)
+
+      await admin
+        .from('users')
+        .update({ tier: pending.to_tier })
+        .eq('id', user.id)
+
+      return NextResponse.redirect(new URL('/dashboard?upgrade=success', request.url))
+    }
+
+    return NextResponse.redirect(new URL('/dashboard?upgrade=processing', request.url))
+  } catch {
+    return NextResponse.redirect(new URL('/dashboard?upgrade=processing', request.url))
+  }
 }

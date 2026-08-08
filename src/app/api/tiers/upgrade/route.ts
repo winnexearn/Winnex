@@ -2,12 +2,9 @@ import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const TIER_PRICES: Record<number, number> = { 1: 0, 2: 1000, 3: 3000 }
+const SQUAD_API = 'https://api.squadco.com'
 
-const TIER_PAYMENT_LINKS: Record<number, string> = {
-  2: 'https://pay.squadco.com/winnextier2',
-  3: 'https://pay.squadco.com/winnextier3',
-}
+const TIER_PRICES: Record<number, number> = { 1: 0, 2: 100000, 3: 300000 }
 
 export async function POST(request: Request) {
   const user = await getSessionUser(request)
@@ -21,20 +18,14 @@ export async function POST(request: Request) {
   }
 
   const toTier = Number(body.to_tier)
-  const price = TIER_PRICES[toTier]
+  const amountKobo = TIER_PRICES[toTier]
 
-  if (!price || toTier <= user.tier) {
+  if (!amountKobo || toTier <= user.tier) {
     return NextResponse.json({ error: 'Invalid tier upgrade' }, { status: 400 })
-  }
-
-  const paymentLink = TIER_PAYMENT_LINKS[toTier]
-  if (!paymentLink) {
-    return NextResponse.json({ error: 'Payment link not configured for this tier' }, { status: 500 })
   }
 
   const admin = createAdminClient()
 
-  // Auto-expire pending upgrades older than 30 minutes
   const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
   await admin
     .from('tier_upgrades')
@@ -54,27 +45,54 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'You already have a pending upgrade. Complete or wait for it to expire.' }, { status: 400 })
   }
 
-  const squadRef = `WINNEX-${user.id.slice(0, 8)}-${Date.now()}`
+  const transactionRef = `WINNEX-${user.id.slice(0, 8)}-${Date.now()}`
 
   const { error: insertError } = await admin.from('tier_upgrades').insert({
     user_id: user.id,
     from_tier: user.tier,
     to_tier: toTier,
-    amount_paid: price,
+    amount_paid: amountKobo / 100,
     payment_status: 'pending',
-    squad_ref: squadRef,
+    squad_ref: transactionRef,
   })
 
   if (insertError) {
     return NextResponse.json({ error: insertError.message }, { status: 500 })
   }
 
-  const separator = paymentLink.includes('?') ? '&' : '?'
-  const checkoutUrl = `${paymentLink}${separator}reference=${squadRef}&email=${encodeURIComponent(user.email)}`
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://winnexearn.site'
+
+  const squadResponse = await fetch(`${SQUAD_API}/transaction/initiate`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.SQUAD_SECRET_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: user.email,
+      amount: amountKobo,
+      currency: 'NGN',
+      initiate_type: 'inline',
+      transaction_ref: transactionRef,
+      callback_url: `${siteUrl}/api/tiers/verify`,
+      key: process.env.SQUAD_PUBLIC_KEY,
+    }),
+  })
+
+  const squadData = await squadResponse.json()
+
+  if (!squadResponse.ok || !squadData.data?.checkout_url) {
+    await admin
+      .from('tier_upgrades')
+      .update({ payment_status: 'failed' })
+      .eq('squad_ref', transactionRef)
+
+    return NextResponse.json({ error: 'Failed to initialize payment. Please try again.' }, { status: 500 })
+  }
 
   return NextResponse.json({
     success: true,
-    checkout_url: checkoutUrl,
-    ref: squadRef,
+    checkout_url: squadData.data.checkout_url,
+    ref: transactionRef,
   })
 }

@@ -112,7 +112,6 @@ export default function AdminReviewsPage() {
 function ReviewsTab({ password }: { password: string }) {
   const [requests, setRequests] = useState<ReviewRequest[]>([])
   const [loading, setLoading] = useState(true)
-  const [processing, setProcessing] = useState<string | null>(null)
 
   const fetchRequests = useCallback(async () => {
     try {
@@ -131,50 +130,6 @@ function ReviewsTab({ password }: { password: string }) {
 
   useEffect(() => { fetchRequests() }, [fetchRequests])
 
-  const showToast = (message: string, type?: 'success' | 'error') => {
-    const toast = document.createElement('div')
-    toast.className = `fixed top-4 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium ${type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`
-    toast.textContent = message
-    document.body.appendChild(toast)
-    setTimeout(() => document.body.removeChild(toast), 4000)
-  }
-
-  const handleApprove = async (request: ReviewRequest) => {
-    if (!confirm(`Approve ${request.user?.email} for Tier ${request.to_tier}?`)) return
-    setProcessing(request.id)
-    try {
-      const res = await fetch('/api/admin/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
-        body: JSON.stringify({ id: request.id, action: 'approve', user_id: request.user_id, to_tier: request.to_tier }),
-      })
-      if (res.ok) await fetchRequests()
-      else {
-        const data = await res.json()
-        alert(data.error || 'Failed')
-      }
-    } catch (err) {
-      console.error('Error:', err)
-    }
-    setProcessing(null)
-  }
-
-  const handleDeny = async (request: ReviewRequest) => {
-    if (!confirm(`Deny ${request.user?.email}'s request?`)) return
-    setProcessing(request.id)
-    try {
-      const res = await fetch('/api/admin/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-admin-password': password },
-        body: JSON.stringify({ id: request.id, action: 'deny' }),
-      })
-      if (res.ok) await fetchRequests()
-    } catch (err) {
-      console.error('Error:', err)
-    }
-    setProcessing(null)
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center py-20">
@@ -189,8 +144,8 @@ function ReviewsTab({ password }: { password: string }) {
         <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No pending reviews</h3>
-        <p className="text-gray-500">All caught up!</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">No payment records</h3>
+        <p className="text-gray-500">No upgrades have been attempted yet.</p>
       </div>
     )
   }
@@ -213,27 +168,18 @@ function ReviewsTab({ password }: { password: string }) {
                 </div>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
-                <span>Wants: <span className="font-medium text-gray-900">Tier {req.to_tier}</span></span>
-                <span>Currently: <span className="font-medium">Tier {req.from_tier}</span></span>
-                <span>Amount: <span className="font-medium">₦{req.amount_paid.toLocaleString()}</span></span>
+                <span>Tier {req.from_tier} → <span className="font-medium text-gray-900">Tier {req.to_tier}</span></span>
+                <span>₦{req.amount_paid.toLocaleString()}</span>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  req.payment_status === 'completed' ? 'bg-green-100 text-green-700' :
+                  req.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                  req.payment_status === 'expired' ? 'bg-gray-100 text-gray-500' :
+                  'bg-red-100 text-red-700'
+                }`}>
+                  {req.payment_status}
+                </span>
                 <span className="text-gray-400">{new Date(req.created_at).toLocaleString()}</span>
               </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleApprove(req)}
-                disabled={processing === req.id}
-                className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition disabled:opacity-50"
-              >
-                {processing === req.id ? '...' : 'Approve'}
-              </button>
-              <button
-                onClick={() => handleDeny(req)}
-                disabled={processing === req.id}
-                className="px-5 py-2.5 bg-red-100 text-red-700 rounded-xl font-medium hover:bg-red-200 transition disabled:opacity-50"
-              >
-                Deny
-              </button>
             </div>
           </div>
         </div>
