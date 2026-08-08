@@ -75,7 +75,6 @@ export async function POST(request: Request) {
       initiate_type: 'inline',
       transaction_ref: transactionRef,
       callback_url: `${siteUrl}/api/tiers/verify`,
-      key: process.env.SQUAD_PUBLIC_KEY,
     }),
   })
 
