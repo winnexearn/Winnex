@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const SQUAD_API = 'https://api.squadco.com'
+const SQUAD_API = 'https://api-d.squadco.com'
 
 export async function GET(request: NextRequest) {
   const user = await getSessionUser(request)

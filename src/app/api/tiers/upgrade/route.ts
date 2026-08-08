@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const SQUAD_API = 'https://api.squadco.com'
+const SQUAD_API = 'https://api-d.squadco.com'
 
 const TIER_PRICES: Record<number, number> = { 1: 0, 2: 100000, 3: 300000 }
 
@@ -82,12 +82,13 @@ export async function POST(request: Request) {
   const squadData = await squadResponse.json()
 
   if (!squadResponse.ok || !squadData.data?.checkout_url) {
+    console.error('SquadCo initiate error:', JSON.stringify(squadData))
     await admin
       .from('tier_upgrades')
       .update({ payment_status: 'failed' })
       .eq('squad_ref', transactionRef)
 
-    return NextResponse.json({ error: 'Failed to initialize payment. Please try again.' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to initialize payment. Please try again.', details: squadData.message || squadData }, { status: 500 })
   }
 
   return NextResponse.json({
